@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MIRA Golf — Equilateral Triangle Explorer</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body style="margin:0">
+<div id="root"></div>
+<script type="text/babel">
+  const { useState, useRef, useCallback, useMemo } = React;
+
+  const W = 560, H = 560, CX = W/2, CY = H/2, R = 215;
+  const N = 3;
+
+  // Fixed equilateral triangle: A = bottom-left, B = bottom-right, C = top
+  const VERTS = [
+    { x: CX + R * Math.cos(150 * Math.PI/180), y: CY + R * Math.sin(150 * Math.PI/180), label: 'A' },
+    { x: CX + R * Math.cos( 30 * Math.PI/180), y: CY + R * Math.sin( 30 * Math.PI/180), label: 'B' },
+    { x: CX + R * Math.cos(270 * Math.PI/180), y: CY + R * Math.sin(270 * Math.PI/180), label: 'C' },
+  ];
+
+  // ── Math helpers ─────────────────────────────────────────────────────────────
+
+  function reflect(p, a, b) {
+    const dx = b.x-a.x, dy = b.y-a.y, d2 = dx*dx+dy*dy;
+    const t = ((p.x-a.x)*dx + (p.y-a.y)*dy) / d2;
+    return { x: 2*(a.x+t*dx)-p.x, y: 2*(a.y+t*dy)-p.y };
+  }
+
+  function segIntersect(p1, p2, p3, p4) {
+    const d1 = {x:p2.x-p1.x, y:p2.y-p1.y};
+    const d2 = {x:p4.x-p3.x, y:p4.y-p3.y};
+    const cross = d1.x*d2.y - d1.y*d2.x;
+    if (Math.abs(cross) < 1e-9) return null;
+    const t = ((p3.x-p1.x)*d2.y - (p3.y-p1.y)*d2.x) / cross;
+    const u = ((p3.x-p1.x)*d1.y - (p3.y-p1.y)*d1.x) / cross;
+    if (t > -1e-9 && t < 1+1e-9 && u > 1e-9 && u < 1-1e-9)
+      return { x: p1.x+t*d1.x, y: p1.y+t*d1.y };
+    return null;
+  }
+
+  function rayHitsWall(from, toward, wA, wB) {
+    const dx = toward.x-from.x, dy = toward.y-from.y;
+    const len = Math.hypot(dx, dy);
+    if (len < 1e-9) return null;
+    const far = { x: from.x+(dx/len)*6000, y: from.y+(dy/len)*6000 };
+    return segIntersect(from, far, wA, wB);
+  }
+
+  function insideTriangle(p) {
+    let inside = false;
+    for (let i=0, j=N-1; i<N; j=i++) {
+      const {x:xi,y:yi}=VERTS[i], {x:xj,y:yj}=VERTS[j];
+      if (((yi>p.y) !== (yj>p.y)) && p.x < (xj-xi)*(p.y-yi)/(yj-yi)+xi) inside=!inside;
+    }
+    return inside;
+  }
+
+  // ── Wall sequences (precomputed) ─────────────────────────────────────────────
+  // All sequences of length k from {0,1,2} with no two consecutive identical walls.
+
+  function buildSeqs(k) {
+    if (k === 0) return [[]];
+    const prev = buildSeqs(k-1);
+    const out = [];
+    for (const seq of prev)
+      for (let w=0; w<N; w++)
+        if (w !== seq[seq.length-1]) out.push([...seq, w]);
+    return out;
+  }
+
+  const SEQS = [[[]], buildSeqs(1), buildSeqs(2), buildSeqs(3), buildSeqs(4)];
+
+  // ── Path finding via iterated reflection (unfolding in reverse) ──────────────
+  //
+  // For a k-bounce path along wall sequence [w0 … w(k−1)]:
+  //   Build U[] by reflecting the target backwards through the wall sequence:
+  //     U[0] = target
+  //     U[j] = reflect( U[j−1], wall[k−j] )        (working backwards)
+  //     U[k] = fully unfolded target — aim straight from the tee
+  //
+  //   Forward pass: each bounce point B[s] = where ray(prev → U[k−s]) hits wall[s].
+
+  function findPaths(tee, target, k) {
+    if (k === 0) return [{ bouncePoints:[], wallSeq:[], label:'Direct (no bounce)' }];
+
+    const valid = [];
+    for (const wallSeq of SEQS[k]) {
+      // Build unfolded targets (backwards through wall sequence)
+      const U = [target];
+      for (let s = k-1; s >= 0; s--) {
+        const w = wallSeq[s];
+        U.push(reflect(U[U.length-1], VERTS[w], VERTS[(w+1)%N]));
+      }
+      // Forward pass
+      const bouncePoints = [];
+      let prev = tee, ok = true;
+      for (let s = 0; s < k; s++) {
+        const w = wallSeq[s];
+        const hit = rayHitsWall(prev, U[k-s], VERTS[w], VERTS[(w+1)%N]);
+        if (!hit) { ok = false; break; }
+        bouncePoints.push(hit);
+        prev = hit;
+      }
+      if (!ok) continue;
+
+      const wallLabels = wallSeq.map(w => VERTS[w].label + VERTS[(w+1)%N].label);
+      valid.push({ bouncePoints, wallSeq: [...wallSeq], label: wallLabels.join(' → ') });
+    }
+
+    const total = Math.max(valid.length, 1);
+    return valid.map((p, i) => ({
+      ...p,
+      color: `hsl(${Math.round(i * 360 / total)}, 72%, 44%)`
+    }));
+  }
+
+  // ── Unfolding visualization ───────────────────────────────────────────────────
+  //
+  // For wall sequence [w0 … w(k−1)], build k+1 triangles and k+1 target positions:
+  //
+  //   triangles[0]     = original table
+  //   triangles[j+1]   = triangles[j] reflected across its wall w_j
+  //
+  //   tgtPositions[0]  = original target
+  //   tgtPositions[j+1] = tgtPositions[j] reflected across wall w_j of triangles[j]
+  //
+  // The straight line from tee (in triangles[0]) to tgtPositions[k] (in triangles[k])
+  // is the unfolded path — it crosses each inter-triangle boundary at exactly
+  // the corresponding bounce point.  (This is equivalent to Mirzakhani's unfolding.)
+
+  function computeUnfolding(target, wallSeq) {
+    const triangles = [VERTS.map(v => ({x:v.x, y:v.y, label:v.label}))];
+    for (const w of wallSeq) {
+      const curr = triangles[triangles.length-1];
+      const wA = curr[w], wB = curr[(w+1)%N];
+      triangles.push(curr.map(v => {
+        const r = reflect(v, wA, wB);
+        return { x:r.x, y:r.y, label:v.label };
+      }));
+    }
+    const tgtPositions = [target];
+    for (let s = 0; s < wallSeq.length; s++) {
+      const w = wallSeq[s];
+      const curr = triangles[s];
+      const wA = curr[w], wB = curr[(w+1)%N];
+      tgtPositions.push(reflect(tgtPositions[tgtPositions.length-1], wA, wB));
+    }
+    return { triangles, tgtPositions };
+  }
+
+  // ── Component ─────────────────────────────────────────────────────────────────
+
+  const DEFAULT_TEE    = { x: CX+70, y: CY+65 };
+  const DEFAULT_TARGET = { x: CX-55, y: CY-55 };
+
+  const BOUNCE_LABEL = [
+    '0 — Direct path',
+    '1 bounce',
+    '2 bounces',
+    '3 bounces',
+    '4 bounces',
+  ];
+
+  function App() {
+    const [tee,        setTee]        = useState(DEFAULT_TEE);
+    const [target,     setTarget]     = useState(DEFAULT_TARGET);
+    const [k,          setK]          = useState(1);
+    const [drag,       setDrag]       = useState(null);
+    const [showUnfold, setShowUnfold] = useState(false);
+    const [selectedIdx, setSelectedIdx] = useState(null);  // null = all visible
+    const svgRef = useRef(null);
+
+    const paths = useMemo(() => {
+      setSelectedIdx(null);   // reset selection whenever bounce count changes
+      return findPaths(tee, target, k);
+    }, [tee, target, k]);
+
+    const unfoldings = useMemo(() => {
+      if (!showUnfold || k === 0) return [];
+      return paths.map(p => ({
+        ...computeUnfolding(target, p.wallSeq),
+        color: p.color || '#888'
+      }));
+    }, [showUnfold, paths, target, k]);
+
+    const svgPt = useCallback((e) => {
+      const rect = svgRef.current.getBoundingClientRect();
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x:(cx-rect.left)*(W/rect.width), y:(cy-rect.top)*(H/rect.height) };
+    }, []);
+
+    const onMove = useCallback((e) => {
+      if (!drag) return;
+      e.preventDefault();
+      const p = svgPt(e);
+      if (!insideTriangle(p)) return;
+      drag === 'tee' ? setTee(p) : setTarget(p);
+    }, [drag, svgPt]);
+
+    // Returns full opacity for the selected path (or all paths if none selected),
+    // and a dim opacity for everything else.
+    const pathOpacity  = (i) => selectedIdx === null || selectedIdx === i ? 1   : 0.1;
+    const unfoldOpacity = (i) => selectedIdx === null || selectedIdx === i ? 1   : 0.05;
+
+    const polyPath = VERTS.map((v,i)=>`${i?'L':'M'}${v.x},${v.y}`).join('')+'Z';
+
+    // Inward-offset label for each wall's midpoint
+    const wallMidLabels = VERTS.map((v,i) => {
+      const nxt = VERTS[(i+1)%N];
+      const mx=(v.x+nxt.x)/2, my=(v.y+nxt.y)/2;
+      const nx=-(nxt.y-v.y), ny=nxt.x-v.x, nl=Math.hypot(nx,ny);
+      const inward = insideTriangle({x:mx+nx/nl*20, y:my+ny/nl*20});
+      const s = (inward?1:-1)*22/nl;
+      return { x:mx+nx*s, y:my+ny*s, label:v.label+nxt.label };
+    });
+
+    return (
+      <div style={{
+        minHeight:'100vh', background:'#f5f0e8', display:'flex', flexDirection:'column',
+        alignItems:'center', justifyContent:'center',
+        fontFamily:"Georgia,serif", padding:'20px', boxSizing:'border-box'
+      }}>
+
+        <h1 style={{fontSize:22, fontWeight:'bold', color:'#2d4a2d', margin:'0 0 4px', letterSpacing:.5}}>
+          MIRA Golf — Equilateral Triangle Explorer
+        </h1>
+        <p style={{color:'#5a6e5a', fontSize:13, margin:'0 0 18px', fontStyle:'italic'}}>
+          Drag <strong>T</strong> (tee) or <strong style={{color:'#c0392b'}}>✕</strong> (target) anywhere inside the triangle
+        </p>
+
+        {/* Controls */}
+        <div style={{display:'flex', alignItems:'center', gap:24, marginBottom:18, flexWrap:'wrap', justifyContent:'center'}}>
+
+          <div style={{display:'flex', alignItems:'center', gap:12}}>
+            <span style={{fontSize:14, color:'#2d4a2d', fontWeight:'bold'}}>Bounces:</span>
+            <input type="range" min={0} max={4} step={1} value={k}
+              onChange={e => setK(Number(e.target.value))}
+              style={{width:160, accentColor:'#2d6a2d', cursor:'pointer'}}
+            />
+            <span style={{fontSize:14, color:'#2d4a2d', minWidth:130}}>{BOUNCE_LABEL[k]}</span>
+          </div>
+
+          <label style={{
+            display:'flex', alignItems:'center', gap:8, cursor: k===0 ? 'not-allowed' : 'pointer',
+            fontSize:14, color: k===0 ? '#aaa' : '#2d4a2d',
+            fontWeight: showUnfold ? 'bold' : 'normal',
+            background: showUnfold ? '#d4ecd4' : 'transparent',
+            padding:'5px 12px', borderRadius:6,
+            border:'1.5px solid ' + (k===0 ? '#ccc' : '#2d6a2d'),
+            transition:'background .15s'
+          }}>
+            <input type="checkbox" checked={showUnfold} disabled={k===0}
+              onChange={e => setShowUnfold(e.target.checked)}
+              style={{accentColor:'#2d6a2d', width:15, height:15, cursor:'pointer'}}
+            />
+            Show unfolding
+          </label>
+        </div>
+
+        {/* SVG canvas */}
+        <svg ref={svgRef} width={W} height={H} viewBox={`0 0 ${W} ${H}`}
+          style={{
+            cursor: drag ? 'grabbing' : 'default',
+            maxWidth:'100%', touchAction:'none',
+            borderRadius:10, background:'#eaf4ea',
+            filter:'drop-shadow(0 4px 20px #2d4a2d1a)',
+            overflow: showUnfold ? 'visible' : 'hidden'
+          }}
+          onMouseMove={onMove} onMouseUp={()=>setDrag(null)} onMouseLeave={()=>setDrag(null)}
+          onTouchMove={onMove} onTouchEnd={()=>setDrag(null)}
+        >
+
+          {/* ── Unfolding layer (behind everything) ── */}
+          {unfoldings.map((uf, ui) => {
+            const { triangles, tgtPositions, color } = uf;
+            const finalTgt = tgtPositions[tgtPositions.length-1];
+            return (
+              <g key={ui} style={{transition:'opacity .2s'}} opacity={unfoldOpacity(ui)}>
+
+                {/* Reflected triangle copies: triangles[1..k] */}
+                {triangles.slice(1).map((tri, ti) => {
+                  const triP = tri.map((v,i)=>`${i?'L':'M'}${v.x},${v.y}`).join('')+'Z';
+                  const depth = ti + 1;
+                  return (
+                    <g key={ti}>
+                      <path d={triP}
+                        fill={color} fillOpacity={0.08}
+                        stroke={color} strokeWidth={1.5} strokeDasharray="5,3"
+                        opacity={Math.max(0.18, 0.6 - depth*0.12)}
+                      />
+                      {/* Vertex labels on reflected triangles */}
+                      {tri.map((v,vi) => {
+                        const offX = v.x < CX-5 ? -16 : v.x > CX+5 ? 14 : 0;
+                        const offY = v.y < CY-5 ? -12 : v.y > CY+5 ? 16 : 0;
+                        return (
+                          <text key={vi} x={v.x+offX} y={v.y+offY}
+                            fontSize={12} fontWeight="bold" textAnchor="middle"
+                            fill={color} opacity={Math.max(0.2, 0.55 - depth*0.1)}>
+                            {v.label}′{'′'.repeat(ti)}
+                          </text>
+                        );
+                      })}
+                    </g>
+                  );
+                })}
+
+                {/* Reflected target X marks: tgtPositions[1..k] */}
+                {tgtPositions.slice(1).map((tp, ti) => {
+                  const sz = Math.max(5, 9 - ti);
+                  const op = Math.max(0.2, 0.65 - ti*0.12);
+                  return (
+                    <g key={ti} opacity={op}>
+                      <line x1={tp.x-sz} y1={tp.y-sz} x2={tp.x+sz} y2={tp.y+sz}
+                        stroke={color} strokeWidth={2.5} strokeLinecap="round"/>
+                      <line x1={tp.x+sz} y1={tp.y-sz} x2={tp.x-sz} y2={tp.y+sz}
+                        stroke={color} strokeWidth={2.5} strokeLinecap="round"/>
+                    </g>
+                  );
+                })}
+
+                {/* The straight unfolded line: tee → final reflected target */}
+                <line x1={tee.x} y1={tee.y} x2={finalTgt.x} y2={finalTgt.y}
+                  stroke={color} strokeWidth={1.8} strokeDasharray="9,5" opacity={0.5}
+                />
+
+              </g>
+            );
+          })}
+
+          {/* ── Original triangle ── */}
+          <path d={polyPath} fill="#d4ecd4" stroke="#2d6a2d" strokeWidth={2.5}/>
+
+          {/* Wall labels */}
+          {wallMidLabels.map((wl,i) =>
+            <text key={i} x={wl.x} y={wl.y} textAnchor="middle" dominantBaseline="middle"
+              fontSize={11} fill="#2d6a2d" fontWeight="bold" opacity={0.55}>{wl.label}</text>
+          )}
+
+          {/* ── Bounce paths (on top of unfolding) ── */}
+          {paths.map((path, pi) => {
+            const pts = [tee, ...path.bouncePoints, target];
+            const c = path.color || '#666';
+            return (
+              <g key={pi} style={{transition:'opacity .2s'}} opacity={pathOpacity(pi)}>
+                {pts.slice(0,-1).map((pt, si) =>
+                  <line key={si}
+                    x1={pt.x} y1={pt.y} x2={pts[si+1].x} y2={pts[si+1].y}
+                    stroke={c} strokeWidth={2.5} opacity={0.92}
+                  />
+                )}
+                {path.bouncePoints.map((bp, bi) =>
+                  <circle key={bi} cx={bp.x} cy={bp.y} r={5} fill={c} opacity={0.95}/>
+                )}
+              </g>
+            );
+          })}
+
+          {/* ── Vertex dots and labels ── */}
+          {VERTS.map((v, i) => {
+            const offX = v.x < CX-5 ? -18 : v.x > CX+5 ? 16 : 0;
+            const offY = v.y < CY-5 ? -14 : v.y > CY+5 ? 18 : 0;
+            return (
+              <g key={i}>
+                <circle cx={v.x} cy={v.y} r={5} fill="#2d4a2d"/>
+                <text x={v.x+offX} y={v.y+offY} fontSize={15} fontWeight="bold"
+                  fill="#1a2e1a" textAnchor="middle">{v.label}</text>
+              </g>
+            );
+          })}
+
+          {/* ── Target ✕ — draggable ── */}
+          <g style={{cursor:'grab'}}
+            onMouseDown={e=>{e.preventDefault();setDrag('target')}}
+            onTouchStart={e=>{e.preventDefault();setDrag('target')}}>
+            <circle cx={target.x} cy={target.y} r={14} fill="transparent"/>
+            <line x1={target.x-9} y1={target.y-9} x2={target.x+9} y2={target.y+9}
+              stroke="#c0392b" strokeWidth={3.5} strokeLinecap="round"/>
+            <line x1={target.x+9} y1={target.y-9} x2={target.x-9} y2={target.y+9}
+              stroke="#c0392b" strokeWidth={3.5} strokeLinecap="round"/>
+          </g>
+
+          {/* ── Tee T — draggable ── */}
+          <g style={{cursor:'grab'}}
+            onMouseDown={e=>{e.preventDefault();setDrag('tee')}}
+            onTouchStart={e=>{e.preventDefault();setDrag('tee')}}>
+            <circle cx={tee.x} cy={tee.y} r={12} fill="#2d6a2d" stroke="#fff" strokeWidth={2.5}/>
+            <text x={tee.x} y={tee.y+1} textAnchor="middle" dominantBaseline="middle"
+              fontSize={12} fill="white" fontWeight="bold" style={{pointerEvents:'none'}}>T</text>
+          </g>
+
+        </svg>
+
+        {/* Legend */}
+        <div style={{marginTop:16, maxWidth:560, width:'100%'}}>
+          <div style={{fontSize:13, fontWeight:'bold', color:'#2d4a2d', marginBottom:7}}>
+            {paths.length === 0
+              ? `No valid ${k}-bounce paths from this position — try moving T or ✕`
+              : `${paths.length} valid path${paths.length!==1?'s':''} found:`
+            }
+          </div>
+          <div style={{display:'flex', flexWrap:'wrap', gap:8}}>
+            {paths.map((p,i) => {
+              const isSelected = selectedIdx === i;
+              const isDimmed   = selectedIdx !== null && !isSelected;
+              return (
+                <div key={i}
+                  onClick={() => setSelectedIdx(isSelected ? null : i)}
+                  style={{
+                    display:'flex', alignItems:'center', gap:7, borderRadius:7,
+                    padding:'5px 12px', fontSize:13, cursor:'pointer',
+                    background: isSelected ? p.color||'#888' : '#fff',
+                    border:`2px solid ${p.color||'#888'}`,
+                    color: isSelected ? '#fff' : '#222',
+                    opacity: isDimmed ? 0.35 : 1,
+                    transition:'opacity .2s, background .15s',
+                    userSelect:'none',
+                  }}>
+                  <div style={{
+                    width:13, height:13, borderRadius:'50%', flexShrink:0,
+                    background: isSelected ? 'rgba(255,255,255,0.7)' : p.color||'#888'
+                  }}/>
+                  {p.label}
+                </div>
+              );
+            })}
+          </div>
+          <p style={{fontSize:12, color:'#5a6e5a', fontStyle:'italic', margin:'8px 0 0'}}>
+            {selectedIdx !== null
+              ? 'Click the highlighted path again to show all paths.'
+              : paths.length > 1 ? 'Click a path to isolate it.' : ''
+            }
+          </p>
+          {showUnfold && k > 0 && (
+            <p style={{fontSize:12, color:'#5a6e5a', fontStyle:'italic', margin:'4px 0 0'}}>
+              Dashed lines show the "unfolded" straight path — reflected copies of the triangle
+              (and ✕) are shown outside the original table, one per bounce.
+            </p>
+          )}
+        </div>
+
+        {/* Reset */}
+        <button
+          onClick={()=>{setTee(DEFAULT_TEE); setTarget(DEFAULT_TARGET);}}
+          style={{
+            marginTop:16, padding:'6px 20px', fontSize:13, cursor:'pointer',
+            background:'#2d6a2d', color:'white', border:'none', borderRadius:6,
+            fontFamily:'Georgia,serif', letterSpacing:.3, opacity:.85
+          }}>
+          Reset positions
+        </button>
+
+      </div>
+    );
+  }
+
+  ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

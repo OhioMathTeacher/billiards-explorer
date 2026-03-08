@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grid Billiards Explorer — TCE 265</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0ede6;
+      color: #222;
+      padding: 24px 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 1.4em;
+      color: #2c4a7c;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 0.88em;
+      margin-bottom: 18px;
+    }
+
+    .layout {
+      display: flex;
+      gap: 20px;
+      max-width: 980px;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+
+    canvas {
+      border: 2px solid #2c4a7c;
+      border-radius: 4px;
+      background: #fff;
+      display: block;
+      cursor: crosshair;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+
+    .sidebar {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .panel {
+      background: #fff;
+      border: 1px solid #d8d0c0;
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .panel h3 {
+      font-size: 0.72em;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: #999;
+      margin-bottom: 10px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+
+    .control-row label {
+      font-size: 0.84em;
+      width: 54px;
+      color: #555;
+      flex-shrink: 0;
+    }
+
+    input[type=range] {
+      flex: 1;
+      accent-color: #2c4a7c;
+      cursor: pointer;
+    }
+
+    .val {
+      font-family: monospace;
+      font-size: 1em;
+      color: #2c4a7c;
+      width: 38px;
+      text-align: right;
+      flex-shrink: 0;
+      font-weight: bold;
+    }
+
+    .shoot-btn {
+      width: 100%;
+      padding: 11px;
+      background: #2c4a7c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1.05em;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 6px;
+      letter-spacing: 1px;
+      transition: background 0.15s;
+    }
+
+    .shoot-btn:hover { background: #1e3560; }
+    .shoot-btn.stop { background: #b03030; }
+    .shoot-btn.stop:hover { background: #8c2020; }
+
+    .status {
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 0.88em;
+      line-height: 1.5;
+      text-align: center;
+      background: #f5f2ec;
+      color: #777;
+      border: 1px solid #ddd;
+      min-height: 44px;
+    }
+
+    .status.terminated {
+      background: #f0fff4;
+      border-color: #68d391;
+      color: #276749;
+      font-weight: 600;
+    }
+
+    .status.infinite {
+      background: #fff5f5;
+      border-color: #fc8181;
+      color: #c53030;
+      font-weight: 600;
+    }
+
+    .status.moving {
+      background: #ebf4ff;
+      border-color: #90cdf4;
+      color: #2b6cb0;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .stat {
+      background: #f9f7f4;
+      border: 1px solid #e0d8cc;
+      border-radius: 6px;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .stat .num {
+      font-family: monospace;
+      font-size: 1.4em;
+      color: #2c4a7c;
+      font-weight: bold;
+    }
+
+    .stat .lbl {
+      font-size: 0.70em;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .explore-qs {
+      font-size: 0.82em;
+      color: #555;
+      line-height: 1.7;
+      padding-left: 16px;
+    }
+
+    .hint-btn {
+      background: none;
+      border: 1px solid #c8b89a;
+      color: #7a5c30;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 0.8em;
+      cursor: pointer;
+      margin-top: 8px;
+      width: 100%;
+    }
+
+    .hint-btn:hover { background: #fdf3e3; }
+
+    .hint-box {
+      background: #fdf3e3;
+      border: 1px solid #d4a857;
+      border-radius: 6px;
+      padding: 10px;
+      font-size: 0.82em;
+      color: #5a3e10;
+      line-height: 1.55;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .speed-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      align-items: center;
+    }
+
+    .speed-lbl {
+      font-size: 0.78em;
+      color: #888;
+      flex-shrink: 0;
+    }
+
+    .speed-btn {
+      flex: 1;
+      padding: 5px;
+      background: #f0ede6;
+      border: 1px solid #c8bfb0;
+      border-radius: 4px;
+      font-size: 0.78em;
+      cursor: pointer;
+      color: #555;
+    }
+
+    .speed-btn.active {
+      background: #2c4a7c;
+      color: #fff;
+      border-color: #2c4a7c;
+    }
+
+    .status-inline {
+      font-size: 0.82em;
+      color: #555;
+      text-align: center;
+      padding: 4px 0 2px;
+      min-height: 1.2em;
+      font-style: italic;
+    }
+
+    .status-inline.terminated { color: #276749; font-style: normal; font-weight: 600; }
+    .status-inline.infinite   { color: #c53030; font-style: normal; font-weight: 600; }
+    .status-inline.moving     { color: #2b6cb0; font-style: normal; }
+
+    .inline-stats {
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.9em;
+      margin: 4px 0 6px;
+      color: #333;
+    }
+
+    .inline-stats strong {
+      font-size: 1.15em;
+      color: #2c4a7c;
+    }
+
+    .divider {
+      border-top: 1px solid #e0d8cc;
+      margin: 7px 0;
+    }
+
+    .control-row.compact label { width: 52px; font-size: 0.8em; }
+    .control-row.compact { margin-bottom: 6px; }
+
+    .aim-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 7px;
+    }
+
+    .sliders-col { flex: 1; min-width: 0; }
+
+    .shoot-square {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+      background: #2c4a7c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.92em;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1.25;
+      transition: background 0.15s;
+      margin-left: 4px;
+    }
+    .shoot-square:hover { background: #1e3560; }
+    .shoot-square.stop  { background: #b03030; }
+    .shoot-square.stop:hover { background: #8c2020; }
+
+
+    /* Portrait phones: stack vertically */
+    @media (max-width: 600px) and (orientation: portrait) {
+      body { padding: 10px 8px; }
+      h1 { font-size: 1.15em; }
+      .subtitle { font-size: 0.8em; }
+      .layout { flex-direction: column; }
+      canvas { width: 100% !important; flex-shrink: 1; }
+      .sidebar { width: 100%; min-width: unset; }
+    }
+
+    /* All small/mobile screens: bigger touch targets */
+    @media (max-width: 900px) {
+      .panel { padding: 10px 12px; }
+      .control-row label { font-size: 0.92em; width: 70px; }
+      input[type=range] { height: 26px; }
+      .shoot-square { width: 52px; min-height: 52px; font-size: 0.82em; }
+      .speed-btn { padding: 7px; font-size: 0.82em; }
+      .stat .num { font-size: 1.5em; }
+      .sidebar { min-width: 200px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Grid Billiards Explorer</h1>
+<p class="subtitle">Choose a <strong>rise</strong> and <strong>run</strong>, then hit <strong>Shoot!</strong> — or tap the table to aim.</p>
+
+
+<div class="layout">
+  <canvas id="canvas" width="580" height="435"></canvas>
+
+  <div class="sidebar">
+
+    <div class="panel">
+      <!-- Rise + Run sliders left, square Shoot button right -->
+      <div class="aim-row">
+        <div class="sliders-col">
+          <div class="control-row">
+            <label id="rise-label">Rise=1</label>
+            <input type="range" id="rise" min="1" max="5" value="1" step="1">
+          </div>
+          <div class="control-row">
+            <label id="run-label">Run=1</label>
+            <input type="range" id="run" min="1" max="5" value="1" step="1">
+          </div>
+        </div>
+        <button class="shoot-square" id="shoot-btn" onclick="shoot()">Shoot!</button>
+      </div>
+
+      <div style="text-align:center; font-size:0.82em; color:#555; margin-bottom:5px; background:#f5f2ec; border-radius:5px; padding:4px 6px;">
+        slope = <strong id="slope-frac">1/1</strong> &nbsp;·&nbsp; angle ≈ <strong id="slope-angle">45°</strong>
+      </div>
+
+      <!-- Results immediately below -->
+      <div class="inline-stats">
+        <span>Bounces: <strong id="bounce-count">—</strong></span>
+        <span>Pocket: <strong id="pocket-reached">—</strong></span>
+      </div>
+      <div id="status" class="status-inline">—</div>
+
+      <div class="divider"></div>
+
+      <!-- Table settings -->
+      <div class="control-row compact">
+        <label>W</label>
+        <input type="range" id="bwidth" min="2" max="12" value="6" step="1">
+        <span class="val" id="width-val">6</span>
+      </div>
+      <div class="control-row compact">
+        <label>H</label>
+        <input type="range" id="bheight" min="2" max="12" value="4" step="1">
+        <span class="val" id="height-val">4</span>
+      </div>
+      <div class="control-row compact">
+        <label>Max Hits</label>
+        <input type="range" id="maxhits" min="1" max="50" value="15" step="1">
+        <span class="val" id="maxhits-val">15</span>
+      </div>
+      <div class="speed-row">
+        <span class="speed-lbl">Speed:</span>
+        <button class="speed-btn" id="spd-slow" onclick="setSpeed(3, 'spd-slow')">Slow</button>
+        <button class="speed-btn active" id="spd-norm" onclick="setSpeed(7, 'spd-norm')">Normal</button>
+        <button class="speed-btn" id="spd-fast" onclick="setSpeed(22, 'spd-fast')">Fast</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const riseSlider = document.getElementById('rise');
+const runSlider  = document.getElementById('run');
+const bwidthSlider = document.getElementById('bwidth');
+const bheightSlider = document.getElementById('bheight');
+const shootBtn = document.getElementById('shoot-btn');
+
+const PAD = 44;
+const MAX_BOUNCES = 3000;
+const SHOW_NUMBERS_MAX = 20; // only label bounces when total ≤ this
+const EPSILON = 1e-9;
+
+// Audio
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playBounceSound() {
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(480, audioCtx.currentTime);
+  osc.frequency.exponentialRampToValueAtTime(200, audioCtx.currentTime + 0.08);
+  gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.08);
+}
+
+function playPocketSound() {
+  // Two-tone "plunk" for landing in a pocket
+  [300, 220].forEach((freq, i) => {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.3, audioCtx.currentTime + i * 0.07);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.07 + 0.2);
+    osc.start(audioCtx.currentTime + i * 0.07);
+    osc.stop(audioCtx.currentTime + i * 0.07 + 0.2);
+  });
+}
+
+let ballSpeed = 7;
+let animFrame = null;
+let isAnimating = false;
+let fullPath = [];
+let trailPath = [];
+let ballPos = null;
+let segmentProgress = 0;
+let lastTime = null;
+let liveBounceCount = 0;
+let endedInPocket = false;   // did the animation end at a corner pocket?
+let animDone = false;        // animation has finished (show endpoint marker)
+
+function setSpeed(s, id) {
+  ballSpeed = s;
+  ['spd-slow','spd-norm','spd-fast'].forEach(bid => {
+    document.getElementById(bid).classList.toggle('active', bid === id);
+  });
+}
+
+function getParams() {
+  return {
+    W: parseInt(bwidthSlider.value),
+    H: parseInt(bheightSlider.value),
+    rise: parseInt(riseSlider.value),
+    run:  parseInt(runSlider.value),
+    maxHits: parseInt(document.getElementById('maxhits').value),
+  };
+}
+
+function computePath(W, H, rise, run) {
+  // Use exact rational slope — ball guaranteed to reach a pocket
+  const mag = Math.sqrt(rise * rise + run * run);
+  let x = 0, y = 0;
+  let dx = run / mag;
+  let dy = rise / mag;
+  const path = [{ x, y }];
+  let bounces = 0;
+  let terminated = false;
+  let pocket = null;
+
+  for (let i = 0; i < MAX_BOUNCES; i++) {
+    const tx = dx > EPSILON ? (W - x) / dx : (dx < -EPSILON ? x / (-dx) : Infinity);
+    const ty = dy > EPSILON ? (H - y) / dy : (dy < -EPSILON ? y / (-dy) : Infinity);
+    const t = Math.min(tx, ty);
+    x = Math.max(0, Math.min(W, x + dx * t));
+    y = Math.max(0, Math.min(H, y + dy * t));
+    const hitV = Math.abs(tx - t) < EPSILON;
+    const hitH = Math.abs(ty - t) < EPSILON;
+    path.push({ x, y });
+    bounces++;
+    const atLeft = x < EPSILON, atRight = x > W - EPSILON;
+    const atBottom = y < EPSILON, atTop = y > H - EPSILON;
+    if ((atLeft || atRight) && (atBottom || atTop)) {
+      terminated = true;
+      pocket = (atTop ? 'T' : 'B') + (atRight ? 'R' : 'L');
+      break;
+    }
+    if (hitV) dx = -dx;
+    if (hitH) dy = -dy;
+  }
+  return { path, bounces, terminated, pocket };
+}
+
+function getLayout(W, H) {
+  const availW = canvas.width - 2 * PAD;
+  const availH = canvas.height - 2 * PAD;
+  const scale = Math.min(availW / W, availH / H);
+  const rectW = W * scale;
+  const rectH = H * scale;
+  const ox = (canvas.width - rectW) / 2;
+  const oy = (canvas.height - rectH) / 2;
+  return { scale, rectW, rectH, ox, oy };
+}
+
+function toCanvas(bx, by, W, H, layout) {
+  const { scale, rectH, ox, oy } = layout;
+  return { cx: ox + bx * scale, cy: oy + (H - by) * scale };
+}
+
+function drawScene(showAim) {
+  const { W, H, rise, run } = getParams();
+  const layout = getLayout(W, H);
+  const { scale, rectW, rectH, ox, oy } = layout;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Grid lines
+  ctx.lineWidth = 0.6;
+  ctx.strokeStyle = '#b8cce0';
+  for (let i = 0; i <= W; i++) {
+    const x = ox + i * scale;
+    ctx.beginPath(); ctx.moveTo(x, oy); ctx.lineTo(x, oy + rectH); ctx.stroke();
+  }
+  for (let j = 0; j <= H; j++) {
+    const y = oy + j * scale;
+    ctx.beginPath(); ctx.moveTo(ox, y); ctx.lineTo(ox + rectW, y); ctx.stroke();
+  }
+
+  // Border
+  ctx.strokeStyle = '#1e3560';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(ox, oy, rectW, rectH);
+
+  // Dimension labels
+  ctx.fillStyle = '#aaa';
+  ctx.font = '12px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText('W = ' + W, ox + rectW / 2, oy + rectH + 10);
+  ctx.save();
+  ctx.translate(ox - 14, oy + rectH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textBaseline = 'bottom';
+  ctx.fillText('H = ' + H, 0, 0);
+  ctx.restore();
+
+  // Corner pockets
+  const corners = [
+    { x: 0, y: 0, lbl: 'BL' }, { x: W, y: 0, lbl: 'BR' },
+    { x: 0, y: H, lbl: 'TL' }, { x: W, y: H, lbl: 'TR' }
+  ];
+  corners.forEach(c => {
+    const { cx, cy } = toCanvas(c.x, c.y, W, H, layout);
+    ctx.fillStyle = '#e8e0d0';
+    ctx.strokeStyle = '#666';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(cx, cy, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = '#888';
+    ctx.font = 'bold 7px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(c.lbl, cx, cy);
+  });
+
+  // Trail
+  if (trailPath.length >= 2) {
+    for (let i = 0; i < trailPath.length - 1; i++) {
+      const p1 = toCanvas(trailPath[i].x, trailPath[i].y, W, H, layout);
+      const p2 = toCanvas(trailPath[i+1].x, trailPath[i+1].y, W, H, layout);
+      const fade = 0.25 + 0.65 * (i / Math.max(trailPath.length - 2, 1));
+      ctx.strokeStyle = `rgba(180, 60, 0, ${fade})`;
+      ctx.lineWidth = 2.2;
+      ctx.beginPath();
+      ctx.moveTo(p1.cx, p1.cy);
+      ctx.lineTo(p2.cx, p2.cy);
+      ctx.stroke();
+    }
+  }
+
+  // Perimeter bounce numbers (only when path is short enough to be legible)
+  const totalHitsShown = fullPath.length - 1;
+  const showNumbers = totalHitsShown <= SHOW_NUMBERS_MAX;
+  if (showNumbers && trailPath.length >= 2) {
+    // trailPath[0] = start, trailPath[1..n-1] = wall hits, last = ball pos (during) or endpoint (after)
+    const numBounceLabels = isAnimating
+      ? trailPath.length - 2   // last point is ball mid-segment, not yet a hit
+      : (endedInPocket ? trailPath.length - 2 : trailPath.length - 1);
+
+    for (let i = 1; i <= numBounceLabels; i++) {
+      const pt = trailPath[i];
+      const { cx, cy } = toCanvas(pt.x, pt.y, W, H, layout);
+
+      // Nudge label slightly outside the wall
+      const { ox: lox, oy: loy, rectW: lrW, rectH: lrH } = layout;
+      const onLeft   = pt.x < EPSILON;
+      const onRight  = pt.x > W - EPSILON;
+      const onBottom = pt.y < EPSILON;
+      const onTop    = pt.y > H - EPSILON;
+      const nudge = 13;
+      let lx = cx, ly = cy;
+      if (onLeft)   lx -= nudge;
+      if (onRight)  lx += nudge;
+      if (onBottom) ly += nudge;
+      if (onTop)    ly -= nudge;
+
+      ctx.fillStyle = '#2c4a7c';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(i, lx, ly);
+
+      // Small dot on the wall
+      ctx.fillStyle = 'rgba(44,74,124,0.55)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Aim arrow + slope landmark
+  const startPt = toCanvas(0, 0, W, H, layout);
+  if (showAim && !isAnimating) {
+    const angle = Math.atan2(rise, run);
+    const aimLen = scale * 1.4;
+    const ex = startPt.cx + Math.cos(angle) * aimLen;
+    const ey = startPt.cy - Math.sin(angle) * aimLen;
+
+    // Highlight the first slope lattice point (run, rise) if it's inside the table
+    if (run <= W && rise <= H) {
+      const lp = toCanvas(run, rise, W, H, layout);
+      // Subtle shaded rectangle from origin to (run, rise)
+      ctx.fillStyle = 'rgba(44, 74, 124, 0.07)';
+      ctx.fillRect(startPt.cx, lp.cy, lp.cx - startPt.cx, startPt.cy - lp.cy);
+      // Dotted grid-aligned guides
+      ctx.strokeStyle = 'rgba(44, 74, 124, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath(); ctx.moveTo(lp.cx, startPt.cy); ctx.lineTo(lp.cx, lp.cy); ctx.stroke(); // vertical
+      ctx.beginPath(); ctx.moveTo(startPt.cx, lp.cy); ctx.lineTo(lp.cx, lp.cy); ctx.stroke(); // horizontal
+      ctx.setLineDash([]);
+      // Highlighted dot at (run, rise)
+      ctx.fillStyle = '#2c4a7c';
+      ctx.beginPath();
+      ctx.arc(lp.cx, lp.cy, 5, 0, Math.PI * 2);
+      ctx.fill();
+      // Label: "(run, rise)"
+      ctx.fillStyle = '#2c4a7c';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = run > W / 2 ? 'right' : 'left';
+      ctx.textBaseline = rise > H / 2 ? 'bottom' : 'top';
+      const offX = run > W / 2 ? -7 : 7;
+      const offY = rise > H / 2 ? -7 : 7;
+      ctx.fillText(`(${run}, ${rise})`, lp.cx + offX, lp.cy + offY);
+    }
+
+    ctx.strokeStyle = 'rgba(44, 74, 124, 0.22)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(startPt.cx, startPt.cy, 28, -angle, 0);
+    ctx.stroke();
+
+    ctx.fillStyle = '#2c4a7c';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    const labelR = 40;
+    const halfAngle = angle / 2;
+    ctx.fillText(Math.round(angle * 180 / Math.PI) + '°',
+      startPt.cx + labelR * Math.cos(halfAngle),
+      startPt.cy - labelR * Math.sin(halfAngle));
+
+    ctx.strokeStyle = 'rgba(44, 74, 124, 0.55)';
+    ctx.lineWidth = 1.8;
+    ctx.setLineDash([5, 5]);
+    ctx.beginPath();
+    ctx.moveTo(startPt.cx, startPt.cy);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    const dir = Math.atan2(ey - startPt.cy, ex - startPt.cx);
+    const hl = 11, ha = 0.38;
+    ctx.fillStyle = 'rgba(44, 74, 124, 0.75)';
+    ctx.beginPath();
+    ctx.moveTo(ex, ey);
+    ctx.lineTo(ex - hl * Math.cos(dir - ha), ey - hl * Math.sin(dir - ha));
+    ctx.lineTo(ex - hl * Math.cos(dir + ha), ey - hl * Math.sin(dir + ha));
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Ball (moving) or endpoint marker (stopped)
+  const drawPos = ballPos || ((!isAnimating && trailPath.length === 0) ? { x: 0, y: 0 } : null);
+  if (drawPos) {
+    const bp = toCanvas(drawPos.x, drawPos.y, W, H, layout);
+
+    if (animDone) {
+      // Big, clear endpoint marker
+      if (endedInPocket) {
+        // Green ring + filled circle for pocket
+        ctx.strokeStyle = '#276749';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(bp.cx, bp.cy, 16, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = '#38a169';
+        ctx.beginPath();
+        ctx.arc(bp.cx, bp.cy, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('IN', bp.cx, bp.cy);
+      } else {
+        // Orange X marker — stopped mid-wall
+        ctx.strokeStyle = '#c05020';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(bp.cx, bp.cy, 16, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = '#dd6b20';
+        ctx.beginPath();
+        ctx.arc(bp.cx, bp.cy, 11, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('?', bp.cx, bp.cy);
+        // Label outside: "still going?"
+        ctx.fillStyle = '#c05020';
+        ctx.font = 'bold 10px sans-serif';
+        const nudgeX = drawPos.x < W / 2 ? -28 : 28;
+        const nudgeY = drawPos.y < H / 2 ? 22 : -22;
+        ctx.fillText('still going?', bp.cx + nudgeX, bp.cy + nudgeY);
+      }
+    } else {
+      // Moving ball
+      ctx.fillStyle = '#cc2222';
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(bp.cx, bp.cy, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.beginPath();
+      ctx.arc(bp.cx - 2.5, bp.cy - 2.5, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+
+function animate(timestamp) {
+  if (!lastTime) lastTime = timestamp;
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  lastTime = timestamp;
+  segmentProgress += ballSpeed * dt;
+
+  let remaining = segmentProgress;
+  let done = false;
+  let currentSeg = 0;
+
+  for (let i = 0; i < fullPath.length - 1; i++) {
+    const p1 = fullPath[i], p2 = fullPath[i + 1];
+    const segLen = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+    if (remaining <= segLen) {
+      currentSeg = i;
+      const t = segLen > 0 ? remaining / segLen : 0;
+      ballPos = { x: p1.x + t * (p2.x - p1.x), y: p1.y + t * (p2.y - p1.y) };
+      trailPath = fullPath.slice(0, i + 1).concat([{ ...ballPos }]);
+      break;
+    }
+    remaining -= segLen;
+    if (i === fullPath.length - 2) {
+      currentSeg = i + 1;
+      ballPos = fullPath[fullPath.length - 1];
+      trailPath = [...fullPath];
+      done = true;
+    }
+  }
+
+  // Live bounce counter: wall hits completed so far
+  // If ended in pocket, the last segment ends at a corner (not a bounce), so subtract 1
+  const completedBounces = done && endedInPocket
+    ? Math.max(0, currentSeg - 1)
+    : currentSeg;
+  if (completedBounces !== liveBounceCount) {
+    liveBounceCount = completedBounces;
+    document.getElementById('bounce-count').textContent = liveBounceCount;
+    if (!done) playBounceSound();
+  }
+
+  drawScene(false);
+
+  if (done) {
+    finishAnimation();
+    return;
+  }
+
+  animFrame = requestAnimationFrame(animate);
+}
+
+function finishAnimation() {
+  isAnimating = false;
+  cancelAnimationFrame(animFrame);
+  shootBtn.textContent = 'Shoot Again';
+  shootBtn.classList.remove('stop');
+
+  animDone = true;
+  const hitsShown = fullPath.length - 1;
+  const statusEl = document.getElementById('status');
+  statusEl.className = 'status-inline';
+  document.getElementById('bounce-count').textContent = hitsShown;
+
+  if (endedInPocket) {
+    playPocketSound();
+    const last = fullPath[fullPath.length - 1];
+    const { W, H } = getParams();
+    const pocketLabel = (last.y > H - EPSILON ? 'T' : 'B') + (last.x > W - EPSILON ? 'R' : 'L');
+    document.getElementById('pocket-reached').textContent = pocketLabel;
+    statusEl.className = 'status-inline terminated';
+    statusEl.textContent = `Pocketed at ${pocketLabel}!`;
+  } else {
+    document.getElementById('pocket-reached').textContent = '—';
+    statusEl.className = 'status-inline infinite';
+    statusEl.textContent = `No pocket after ${hitsShown} hits — try more!`;
+  }
+}
+
+function shoot() {
+  if (isAnimating) {
+    cancelAnimationFrame(animFrame);
+    isAnimating = false;
+    ballPos = null;
+    trailPath = [];
+    animDone = false;
+    shootBtn.textContent = 'Shoot!';
+    shootBtn.classList.remove('stop');
+    resetResults();
+    drawScene(true);
+    return;
+  }
+
+  const { W, H, rise, run, maxHits } = getParams();
+  const result = computePath(W, H, rise, run);
+
+  // Slice path to maxHits segments (plus start point)
+  // If it terminates before maxHits, use the full path
+  const capIndex = Math.min(maxHits, result.path.length - 1);
+  fullPath = result.path.slice(0, capIndex + 1);
+
+  // Did we actually reach a corner pocket within maxHits?
+  const last = fullPath[fullPath.length - 1];
+  const atLeft = last.x < EPSILON, atRight = last.x > W - EPSILON;
+  const atBottom = last.y < EPSILON, atTop = last.y > H - EPSILON;
+  endedInPocket = (atLeft || atRight) && (atBottom || atTop);
+  animDone = false;
+
+  trailPath = [];
+  ballPos = { x: 0, y: 0 };
+  segmentProgress = 0;
+  lastTime = null;
+  liveBounceCount = 0;
+  isAnimating = true;
+
+  resetResults('moving');
+  shootBtn.textContent = 'Cancel';
+  shootBtn.classList.add('stop');
+  animFrame = requestAnimationFrame(animate);
+}
+
+function resetResults(statusClass) {
+  document.getElementById('bounce-count').textContent = '—';
+  document.getElementById('pocket-reached').textContent = '—';
+  const s = document.getElementById('status');
+  s.className = 'status-inline' + (statusClass ? ' ' + statusClass : '');
+  s.textContent = statusClass === 'moving' ? 'Ball in motion…' : 'Set rise & run, then Shoot!';
+}
+
+function updateLabels() {
+  const r = parseInt(riseSlider.value), ru = parseInt(runSlider.value);
+  document.getElementById('rise-label').textContent = 'Rise=' + r;
+  document.getElementById('run-label').textContent  = 'Run=' + ru;
+  document.getElementById('width-val').textContent = bwidthSlider.value;
+  document.getElementById('height-val').textContent = bheightSlider.value;
+  document.getElementById('maxhits-val').textContent = document.getElementById('maxhits').value;
+  // Simplify fraction display using gcd
+  const g = gcd(r, ru);
+  document.getElementById('slope-frac').textContent = (r/g) + '/' + (ru/g);
+  document.getElementById('slope-angle').textContent = Math.round(Math.atan2(r, ru) * 180 / Math.PI) + '°';
+}
+
+function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+
+function onSliderChange() {
+  updateLabels();
+  if (!isAnimating) {
+    trailPath = [];
+    ballPos = null;
+    animDone = false;
+    shootBtn.textContent = 'Shoot!';
+    shootBtn.classList.remove('stop');
+    resetResults();
+    drawScene(true);
+  }
+}
+
+canvas.addEventListener('click', function(e) {
+  if (isAnimating) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const mx = (e.clientX - rect.left) * scaleX;
+  const my = (e.clientY - rect.top) * scaleY;
+
+  const { W, H } = getParams();
+  const layout = getLayout(W, H);
+  const start = toCanvas(0, 0, W, H, layout);
+
+  const dx = mx - start.cx;
+  const dy = start.cy - my; // flip y
+  if (dx <= 0 || dy <= 0) return;
+
+  // Snap to nearest integer rise/run (1–5 each)
+  const slope = dy / dx;
+  let bestRise = 1, bestRun = 1, bestErr = Infinity;
+  for (let r = 1; r <= 5; r++) {
+    for (let ru = 1; ru <= 5; ru++) {
+      const err = Math.abs(r / ru - slope);
+      if (err < bestErr) { bestErr = err; bestRise = r; bestRun = ru; }
+    }
+  }
+  riseSlider.value = bestRise;
+  runSlider.value = bestRun;
+  onSliderChange();
+});
+
+
+[riseSlider, runSlider, bwidthSlider, bheightSlider, document.getElementById('maxhits')].forEach(el => el.addEventListener('input', onSliderChange));
+
+function resizeCanvas() {
+  const ASPECT = 435 / 580;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const isPortrait = vh > vw;
+  const isSmall = vw <= 600;
+
+  let w;
+  if (isPortrait && isSmall) {
+    // Stacked: canvas fills width
+    w = Math.min(580, vw - 16);
+  } else {
+    // Side-by-side: constrain by both available width AND available height
+    const sidebarW = Math.min(240, vw * 0.32);
+    const maxByWidth  = vw - sidebarW - 24;
+    const maxByHeight = (vh - 70) / ASPECT;   // leave room for title
+    w = Math.min(580, maxByWidth, maxByHeight);
+    w = Math.max(220, w);
+  }
+
+  canvas.width  = Math.round(w);
+  canvas.height = Math.round(w * ASPECT);
+  if (!isAnimating) drawScene(!animDone);
+}
+
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 150));
+
+updateLabels();
+resizeCanvas();
+</script>
+</body>
+</html>
