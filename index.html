@@ -241,20 +241,6 @@
       border-color: #2c4a7c;
     }
 
-    /* Rotate nudge */
-    #rotate-nudge {
-      display: none;
-      background: #2c4a7c;
-      color: #fff;
-      text-align: center;
-      padding: 12px 16px;
-      font-size: 1em;
-      border-radius: 8px;
-      margin-bottom: 14px;
-      max-width: 700px;
-      margin-left: auto;
-      margin-right: auto;
-    }
 
     /* Portrait phones: stack vertically */
     @media (max-width: 600px) and (orientation: portrait) {
@@ -283,7 +269,6 @@
 <h1>Grid Billiards Explorer</h1>
 <p class="subtitle">Choose a <strong>rise</strong> and <strong>run</strong>, then hit <strong>Shoot!</strong> — or tap the table to aim.</p>
 
-<div id="rotate-nudge">⟳ Rotate your phone to landscape for the best experience</div>
 
 <div class="layout">
   <canvas id="canvas" width="580" height="435"></canvas>
@@ -305,7 +290,8 @@
       <div style="text-align:center; font-size:0.85em; color:#555; margin-bottom:8px; background:#f5f2ec; border-radius:6px; padding:6px;">
         slope = <strong id="slope-frac">1/1</strong> &nbsp;·&nbsp; angle ≈ <strong id="slope-angle">45°</strong>
       </div>
-      <div class="control-row">
+      <button class="shoot-btn" id="shoot-btn" onclick="shoot()">Shoot!</button>
+      <div class="control-row" style="margin-top:12px;">
         <label>Width</label>
         <input type="range" id="bwidth" min="2" max="12" value="6" step="1">
         <span class="val" id="width-val">6</span>
@@ -326,7 +312,6 @@
         <button class="speed-btn active" id="spd-norm" onclick="setSpeed(7, 'spd-norm')">Normal</button>
         <button class="speed-btn" id="spd-fast" onclick="setSpeed(22, 'spd-fast')">Fast</button>
       </div>
-      <button class="shoot-btn" id="shoot-btn" onclick="shoot()">Shoot!</button>
     </div>
 
     <div class="panel">
@@ -933,19 +918,11 @@ function resizeCanvas() {
   if (!isAnimating) drawScene(!animDone);
 }
 
-function checkOrientation() {
-  const nudge = document.getElementById('rotate-nudge');
-  const isPortrait = window.innerHeight > window.innerWidth;
-  const isSmall = Math.min(window.innerWidth, window.innerHeight) < 500;
-  nudge.style.display = (isPortrait && isSmall) ? 'block' : 'none';
-}
-
-window.addEventListener('resize', () => { resizeCanvas(); checkOrientation(); });
-window.addEventListener('orientationchange', () => { setTimeout(() => { resizeCanvas(); checkOrientation(); }, 150); });
+window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 150));
 
 updateLabels();
 resizeCanvas();
-checkOrientation();
 </script>
 </body>
 </html>
