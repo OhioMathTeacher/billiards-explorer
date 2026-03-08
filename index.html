@@ -77,7 +77,7 @@
 
     .control-row label {
       font-size: 0.84em;
-      width: 56px;
+      width: 54px;
       color: #555;
       flex-shrink: 0;
     }
@@ -285,18 +285,19 @@
     .sliders-col { flex: 1; min-width: 0; }
 
     .shoot-square {
-      width: 58px;
-      min-height: 58px;
+      width: 72px;
+      height: 72px;
       flex-shrink: 0;
       background: #2c4a7c;
       color: #fff;
       border: none;
-      border-radius: 6px;
-      font-size: 0.88em;
+      border-radius: 8px;
+      font-size: 0.92em;
       font-weight: bold;
       cursor: pointer;
       line-height: 1.25;
       transition: background 0.15s;
+      margin-left: 4px;
     }
     .shoot-square:hover { background: #1e3560; }
     .shoot-square.stop  { background: #b03030; }
@@ -341,14 +342,12 @@
       <div class="aim-row">
         <div class="sliders-col">
           <div class="control-row">
-            <label>Rise</label>
+            <label id="rise-label">Rise=1</label>
             <input type="range" id="rise" min="1" max="5" value="1" step="1">
-            <span class="val" id="rise-val">1</span>
           </div>
           <div class="control-row">
-            <label>Run</label>
+            <label id="run-label">Run=1</label>
             <input type="range" id="run" min="1" max="5" value="1" step="1">
-            <span class="val" id="run-val">1</span>
           </div>
         </div>
         <button class="shoot-square" id="shoot-btn" onclick="shoot()">Shoot!</button>
@@ -895,8 +894,8 @@ function resetResults(statusClass) {
 
 function updateLabels() {
   const r = parseInt(riseSlider.value), ru = parseInt(runSlider.value);
-  document.getElementById('rise-val').textContent = r;
-  document.getElementById('run-val').textContent = ru;
+  document.getElementById('rise-label').textContent = 'Rise=' + r;
+  document.getElementById('run-label').textContent  = 'Run=' + ru;
   document.getElementById('width-val').textContent = bwidthSlider.value;
   document.getElementById('height-val').textContent = bheightSlider.value;
   document.getElementById('maxhits-val').textContent = document.getElementById('maxhits').value;
@@ -937,11 +936,11 @@ canvas.addEventListener('click', function(e) {
   const dy = start.cy - my; // flip y
   if (dx <= 0 || dy <= 0) return;
 
-  // Snap to nearest integer rise/run (1–8 each)
+  // Snap to nearest integer rise/run (1–5 each)
   const slope = dy / dx;
   let bestRise = 1, bestRun = 1, bestErr = Infinity;
-  for (let r = 1; r <= 8; r++) {
-    for (let ru = 1; ru <= 8; ru++) {
+  for (let r = 1; r <= 5; r++) {
+    for (let ru = 1; ru <= 5; ru++) {
       const err = Math.abs(r / ru - slope);
       if (err < bestErr) { bestErr = err; bestRise = r; bestRun = ru; }
     }
