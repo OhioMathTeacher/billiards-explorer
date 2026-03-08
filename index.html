@@ -305,26 +305,6 @@
       </div>
     </div>
 
-    <div class="panel">
-      <h3>Explore</h3>
-      <ul class="explore-qs">
-        <li>Start with rise=1, run=1 (Paper Pool). Which pocket?</li>
-        <li>Try rise=1, run=2. Does the ball pocket? How many bounces?</li>
-        <li>Try rise=2, run=1. Compare to rise=1, run=2.</li>
-        <li>Try rise=2, run=4. Surprised? Why?</li>
-        <li>Which pocket does the ball reach? Can you predict it?</li>
-        <li>Does changing Width or Height change things?</li>
-      </ul>
-      <button class="hint-btn" id="hint1-btn" onclick="showHint1()">Show hint</button>
-      <div class="hint-box" id="hint1">
-        Try looking at <strong>tan(angle)</strong> for angles that reach a pocket versus angles that seem to bounce forever. What pattern do you notice?
-      </div>
-      <button class="hint-btn" id="hint2-btn" style="display:none;" onclick="showHint2()">Show deeper hint</button>
-      <div class="hint-box" id="hint2">
-        A ball terminates if and only if <strong>tan(θ) is a rational number</strong> (a ratio p/q of two whole numbers). At "irrational" angles, the ball bounces forever — tracing a path that never quite repeats. This was central to Mirzakhani's research on billiard trajectories.
-      </div>
-    </div>
-
   </div>
 </div>
 
@@ -886,16 +866,6 @@ canvas.addEventListener('click', function(e) {
   onSliderChange();
 });
 
-function showHint1() {
-  document.getElementById('hint1').style.display = 'block';
-  document.getElementById('hint1-btn').style.display = 'none';
-  document.getElementById('hint2-btn').style.display = 'block';
-}
-
-function showHint2() {
-  document.getElementById('hint2').style.display = 'block';
-  document.getElementById('hint2-btn').style.display = 'none';
-}
 
 [riseSlider, runSlider, bwidthSlider, bheightSlider, document.getElementById('maxhits')].forEach(el => el.addEventListener('input', onSliderChange));
 updateLabels();
