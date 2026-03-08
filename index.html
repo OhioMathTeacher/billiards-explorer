@@ -256,21 +256,25 @@
       margin-right: auto;
     }
 
-    /* Mobile: stack canvas above controls */
-    @media (max-width: 700px) {
-      body { padding: 12px 10px; }
-      h1 { font-size: 1.2em; }
-      .subtitle { font-size: 0.82em; }
+    /* Portrait phones: stack vertically */
+    @media (max-width: 600px) and (orientation: portrait) {
+      body { padding: 10px 8px; }
+      h1 { font-size: 1.15em; }
+      .subtitle { font-size: 0.8em; }
       .layout { flex-direction: column; }
       canvas { width: 100% !important; flex-shrink: 1; }
       .sidebar { width: 100%; min-width: unset; }
-      .panel { padding: 12px; }
-      .control-row label { font-size: 0.95em; width: 70px; }
-      .val { font-size: 1.05em; }
+    }
+
+    /* All small/mobile screens: bigger touch targets */
+    @media (max-width: 900px) {
+      .panel { padding: 10px 12px; }
+      .control-row label { font-size: 0.92em; width: 70px; }
       input[type=range] { height: 26px; }
       .shoot-btn { padding: 13px; font-size: 1.05em; }
       .speed-btn { padding: 7px; font-size: 0.82em; }
-      .stat .num { font-size: 1.6em; }
+      .stat .num { font-size: 1.5em; }
+      .sidebar { min-width: 200px; }
     }
   </style>
 </head>
@@ -905,23 +909,35 @@ canvas.addEventListener('click', function(e) {
 [riseSlider, runSlider, bwidthSlider, bheightSlider, document.getElementById('maxhits')].forEach(el => el.addEventListener('input', onSliderChange));
 
 function resizeCanvas() {
-  const isMobile = window.innerWidth <= 700;
-  if (isMobile) {
-    const w = Math.min(580, window.innerWidth - 20);
-    canvas.width  = w;
-    canvas.height = Math.round(w * 435 / 580);
+  const ASPECT = 435 / 580;
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const isPortrait = vh > vw;
+  const isSmall = vw <= 600;
+
+  let w;
+  if (isPortrait && isSmall) {
+    // Stacked: canvas fills width
+    w = Math.min(580, vw - 16);
   } else {
-    canvas.width  = 580;
-    canvas.height = 435;
+    // Side-by-side: constrain by both available width AND available height
+    const sidebarW = Math.min(240, vw * 0.32);
+    const maxByWidth  = vw - sidebarW - 24;
+    const maxByHeight = (vh - 70) / ASPECT;   // leave room for title
+    w = Math.min(580, maxByWidth, maxByHeight);
+    w = Math.max(220, w);
   }
+
+  canvas.width  = Math.round(w);
+  canvas.height = Math.round(w * ASPECT);
   if (!isAnimating) drawScene(!animDone);
 }
 
 function checkOrientation() {
   const nudge = document.getElementById('rotate-nudge');
-  const isMobile = window.innerWidth <= 700 || window.innerHeight <= 500;
   const isPortrait = window.innerHeight > window.innerWidth;
-  nudge.style.display = (isMobile && isPortrait) ? 'block' : 'none';
+  const isSmall = Math.min(window.innerWidth, window.innerHeight) < 500;
+  nudge.style.display = (isPortrait && isSmall) ? 'block' : 'none';
 }
 
 window.addEventListener('resize', () => { resizeCanvas(); checkOrientation(); });
