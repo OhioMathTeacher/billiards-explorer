@@ -241,6 +241,40 @@
       border-color: #2c4a7c;
     }
 
+    .status-inline {
+      font-size: 0.82em;
+      color: #555;
+      text-align: center;
+      padding: 4px 0 2px;
+      min-height: 1.2em;
+      font-style: italic;
+    }
+
+    .status-inline.terminated { color: #276749; font-style: normal; font-weight: 600; }
+    .status-inline.infinite   { color: #c53030; font-style: normal; font-weight: 600; }
+    .status-inline.moving     { color: #2b6cb0; font-style: normal; }
+
+    .inline-stats {
+      display: flex;
+      justify-content: space-around;
+      font-size: 0.9em;
+      margin: 4px 0 6px;
+      color: #333;
+    }
+
+    .inline-stats strong {
+      font-size: 1.15em;
+      color: #2c4a7c;
+    }
+
+    .divider {
+      border-top: 1px solid #e0d8cc;
+      margin: 7px 0;
+    }
+
+    .control-row.compact label { width: 28px; font-size: 0.8em; }
+    .control-row.compact { margin-bottom: 6px; }
+
 
     /* Portrait phones: stack vertically */
     @media (max-width: 600px) and (orientation: portrait) {
@@ -276,7 +310,6 @@
   <div class="sidebar">
 
     <div class="panel">
-      <h3>Aim</h3>
       <div class="control-row">
         <label>Rise</label>
         <input type="range" id="rise" min="1" max="8" value="1" step="1">
@@ -287,22 +320,31 @@
         <input type="range" id="run" min="1" max="8" value="1" step="1">
         <span class="val" id="run-val">1</span>
       </div>
-      <div style="text-align:center; font-size:0.85em; color:#555; margin-bottom:8px; background:#f5f2ec; border-radius:6px; padding:6px;">
+      <div style="text-align:center; font-size:0.82em; color:#555; margin-bottom:7px; background:#f5f2ec; border-radius:5px; padding:4px 6px;">
         slope = <strong id="slope-frac">1/1</strong> &nbsp;·&nbsp; angle ≈ <strong id="slope-angle">45°</strong>
       </div>
       <button class="shoot-btn" id="shoot-btn" onclick="shoot()">Shoot!</button>
-      <div class="control-row" style="margin-top:12px;">
-        <label>Width</label>
+
+      <!-- Inline results — visible immediately below Shoot -->
+      <div id="status" class="status-inline">—</div>
+      <div class="inline-stats">
+        <span>Bounces: <strong id="bounce-count">—</strong></span>
+        <span>Pocket: <strong id="pocket-reached">—</strong></span>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Table settings — compact two-per-row -->
+      <div class="control-row compact">
+        <label>W</label>
         <input type="range" id="bwidth" min="2" max="12" value="6" step="1">
         <span class="val" id="width-val">6</span>
-      </div>
-      <div class="control-row">
-        <label>Height</label>
+        <label style="margin-left:6px;">H</label>
         <input type="range" id="bheight" min="2" max="12" value="4" step="1">
         <span class="val" id="height-val">4</span>
       </div>
-      <div class="control-row">
-        <label>Max hits</label>
+      <div class="control-row compact">
+        <label>Hits</label>
         <input type="range" id="maxhits" min="1" max="50" value="15" step="1">
         <span class="val" id="maxhits-val">15</span>
       </div>
@@ -311,21 +353,6 @@
         <button class="speed-btn" id="spd-slow" onclick="setSpeed(3, 'spd-slow')">Slow</button>
         <button class="speed-btn active" id="spd-norm" onclick="setSpeed(7, 'spd-norm')">Normal</button>
         <button class="speed-btn" id="spd-fast" onclick="setSpeed(22, 'spd-fast')">Fast</button>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h3>Results</h3>
-      <div id="status" class="status">Aim and shoot to begin.</div>
-      <div class="stat-grid">
-        <div class="stat">
-          <div class="num" id="bounce-count">—</div>
-          <div class="lbl">Bounces</div>
-        </div>
-        <div class="stat">
-          <div class="num" id="pocket-reached">—</div>
-          <div class="lbl">Pocket</div>
-        </div>
       </div>
     </div>
 
@@ -765,6 +792,7 @@ function finishAnimation() {
   animDone = true;
   const hitsShown = fullPath.length - 1;
   const statusEl = document.getElementById('status');
+  statusEl.className = 'status-inline';
   document.getElementById('bounce-count').textContent = hitsShown;
 
   if (endedInPocket) {
@@ -773,12 +801,12 @@ function finishAnimation() {
     const { W, H } = getParams();
     const pocketLabel = (last.y > H - EPSILON ? 'T' : 'B') + (last.x > W - EPSILON ? 'R' : 'L');
     document.getElementById('pocket-reached').textContent = pocketLabel;
-    statusEl.className = 'status terminated';
-    statusEl.textContent = `Ball reached pocket ${pocketLabel} after ${hitsShown} bounce${hitsShown !== 1 ? 's' : ''}.`;
+    statusEl.className = 'status-inline terminated';
+    statusEl.textContent = `Pocketed at ${pocketLabel}!`;
   } else {
     document.getElementById('pocket-reached').textContent = '—';
-    statusEl.className = 'status infinite';
-    statusEl.textContent = `No pocket after ${hitsShown} bounces — ball stopped mid-wall. Try more hits!`;
+    statusEl.className = 'status-inline infinite';
+    statusEl.textContent = `No pocket after ${hitsShown} hits — try more!`;
   }
 }
 
@@ -828,8 +856,8 @@ function resetResults(statusClass) {
   document.getElementById('bounce-count').textContent = '—';
   document.getElementById('pocket-reached').textContent = '—';
   const s = document.getElementById('status');
-  s.className = 'status' + (statusClass ? ' ' + statusClass : '');
-  s.textContent = statusClass === 'moving' ? 'Ball in motion…' : 'Start with rise=1, run=1 (Paper Pool), then try other slopes!';
+  s.className = 'status-inline' + (statusClass ? ' ' + statusClass : '');
+  s.textContent = statusClass === 'moving' ? 'Ball in motion…' : 'Set rise & run, then Shoot!';
 }
 
 function updateLabels() {
