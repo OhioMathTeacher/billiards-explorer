@@ -8,387 +8,272 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: Georgia, serif;
-      background: #f5f0e8;
-      color: #1a2e1a;
-      padding: 48px 24px 64px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #fff;
+      color: #1d1d1f;
+      padding: 72px 24px 96px;
     }
 
-    /* ── Header ───────────────────────────────────────────────── */
+    /* ── Header ── */
     header {
-      max-width: 820px;
-      margin: 0 auto 52px;
+      max-width: 680px;
+      margin: 0 auto 80px;
       text-align: center;
     }
 
     header h1 {
-      font-size: 2em;
-      color: #2d4a2d;
-      letter-spacing: .4px;
-      margin-bottom: 10px;
+      font-size: 2.4em;
+      font-weight: 700;
+      letter-spacing: -.5px;
+      margin-bottom: 16px;
+      color: #1d1d1f;
     }
 
-    .course-tag {
-      display: inline-block;
-      font-size: .78em;
-      font-family: 'Segoe UI', sans-serif;
-      background: #d4ecd4;
-      color: #2d6a2d;
-      border-radius: 4px;
-      padding: 3px 10px;
-      margin-bottom: 20px;
-      letter-spacing: .3px;
-    }
-
-    .intro {
-      font-size: .97em;
-      color: #3a4e3a;
+    header p {
+      font-size: 1em;
+      color: #6e6e73;
       line-height: 1.75;
-      max-width: 700px;
-      margin: 0 auto;
     }
 
-    .intro em { color: #5a3e10; font-style: italic; }
-
-    /* ── Sketch table ─────────────────────────────────────────── */
+    /* ── Sketch rows ── */
     .sketch-list {
-      max-width: 820px;
+      max-width: 800px;
       margin: 0 auto;
       display: flex;
       flex-direction: column;
-      gap: 36px;
     }
 
     .sketch-row {
       display: grid;
-      grid-template-columns: 220px 1fr;
-      gap: 0;
-      background: #fff;
-      border: 2px solid #c0d4c0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 14px #2d4a2d0d;
-      transition: box-shadow .15s, border-color .15s;
+      grid-template-columns: 200px 1fr;
+      gap: 48px;
+      align-items: start;
+      padding: 48px 0;
+      border-top: 1px solid #e5e5e7;
     }
 
-    .sketch-row:hover {
-      border-color: #2d6a2d;
-      box-shadow: 0 6px 28px #2d4a2d18;
+    .sketch-row:last-child {
+      border-bottom: 1px solid #e5e5e7;
     }
 
-    /* Thumbnail column */
-    .thumb {
-      background: #eaf4ea;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 20px;
-      border-right: 2px solid #c0d4c0;
-      flex-shrink: 0;
-    }
-
+    /* Thumbnail */
     .thumb svg {
       display: block;
-      width: 170px;
-      height: 170px;
+      width: 200px;
+      height: 200px;
+      border-radius: 16px;
     }
 
-    /* Description column */
+    /* Description */
     .desc {
-      padding: 26px 28px 24px;
+      padding-top: 4px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 14px;
     }
 
     .desc h2 {
-      font-size: 1.12em;
-      color: #2d4a2d;
-      margin-bottom: 2px;
-    }
-
-    .desc .tagline {
-      font-size: .88em;
-      color: #5a6e5a;
-      font-style: italic;
-      line-height: 1.5;
+      font-size: 1.2em;
+      font-weight: 600;
+      color: #1d1d1f;
+      letter-spacing: -.2px;
     }
 
     .desc .body-text {
+      font-size: .93em;
+      color: #3a3a3c;
+      line-height: 1.75;
+    }
+
+    .desc .mirzakhani {
       font-size: .88em;
-      color: #333;
+      color: #6e6e73;
       line-height: 1.7;
     }
 
-    .desc .mirzakhani-note {
-      font-size: .84em;
-      color: #5a3e10;
-      background: #fdf3e3;
-      border-left: 3px solid #d4a857;
-      padding: 8px 12px;
-      border-radius: 0 5px 5px 0;
-      line-height: 1.6;
+    .desc .mirzakhani strong {
+      color: #3a3a3c;
+      font-weight: 600;
     }
 
-    .desc .mirzakhani-note strong { color: #7a4e10; }
-
-    .tag-row {
-      display: flex;
-      flex-wrap: wrap;
+    .launch {
+      display: inline-flex;
+      align-items: center;
       gap: 6px;
-      margin-top: 2px;
-    }
-
-    .tag {
-      font-size: .76em;
-      font-family: 'Segoe UI', sans-serif;
-      background: #eaf4ea;
-      color: #2d6a2d;
-      border-radius: 4px;
-      padding: 2px 8px;
-      letter-spacing: .2px;
-    }
-
-    .launch-btn {
-      display: inline-block;
-      margin-top: 6px;
-      align-self: flex-start;
-      padding: 7px 20px;
-      background: #2d6a2d;
-      color: #fff;
-      font-family: Georgia, serif;
-      font-size: .88em;
-      border-radius: 6px;
+      margin-top: 4px;
+      font-size: .9em;
+      font-weight: 600;
+      color: #1d1d1f;
       text-decoration: none;
-      letter-spacing: .3px;
-      transition: background .12s;
+      border-bottom: 1.5px solid #1d1d1f;
+      padding-bottom: 1px;
+      width: fit-content;
+      transition: opacity .12s;
     }
 
-    .launch-btn:hover { background: #1e4e1e; }
+    .launch:hover { opacity: .55; }
 
-    /* ── Footer ───────────────────────────────────────────────── */
+    /* ── Footer ── */
     footer {
-      max-width: 820px;
-      margin: 56px auto 0;
+      margin-top: 72px;
       text-align: center;
-      font-size: .82em;
-      color: #8a9e8a;
-      font-style: italic;
+      font-size: .8em;
+      color: #aeaeb2;
     }
 
-    footer a { color: #5a7e5a; text-decoration: none; }
-    footer a:hover { text-decoration: underline; }
+    footer a { color: #aeaeb2; text-decoration: none; }
+    footer a:hover { color: #6e6e73; }
 
-    /* ── Responsive ───────────────────────────────────────────── */
-    @media (max-width: 600px) {
-      .sketch-row { grid-template-columns: 1fr; }
-      .thumb { border-right: none; border-bottom: 2px solid #c0d4c0; padding: 20px; }
-      .thumb svg { width: 140px; height: 140px; }
-      header h1 { font-size: 1.5em; }
+    /* ── Responsive ── */
+    @media (max-width: 580px) {
+      .sketch-row { grid-template-columns: 1fr; gap: 24px; }
+      .thumb svg  { width: 160px; height: 160px; }
+      header h1   { font-size: 1.8em; }
     }
   </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════════════ HEADER -->
 <header>
   <h1>Billiards &amp; Reflection</h1>
-  <div class="course-tag">TCE 265 &mdash; Mathematics, History &amp; Technology &middot; Miami University</div>
-  <p class="intro">
-    In 2014, Maryam Mirzakhani became the first woman &mdash; and the first Iranian &mdash; to receive
-    the Fields Medal, mathematics&rsquo; highest honor. A central thread in her work was
-    <em>billiard trajectories on flat surfaces</em>: the study of how a ball bouncing inside
-    a polygon traces paths whose complexity conceals profound geometric order.
-    Her key technique was <em>unfolding</em> &mdash; instead of reflecting the ball, reflect
-    the table. A zig-zag billiard path becomes a straight line in the unfolded picture,
-    linking combinatorics, geometry, and the deep theory of moduli spaces.
-    The interactive sketches below let you explore that idea directly.
+  <p>
+    Maryam Mirzakhani won the 2014 Fields Medal in part for her work on billiard
+    trajectories on flat surfaces. Her central technique — unfolding a polygon by
+    reflecting it instead of the ball — turns a zig-zag path into a straight line,
+    and reveals deep connections between geometry, dynamics, and topology.
+    These sketches let you explore that idea directly.
   </p>
 </header>
 
-<!-- ══════════════════════════════════════════════════════════════ SKETCHES -->
 <div class="sketch-list">
 
-  <!-- ── Row 1: MIRA Golf ────────────────────────────────────── -->
+  <!-- ── MIRA Golf ── -->
   <div class="sketch-row">
-
     <div class="thumb">
-      <!-- Thumbnail: equilateral triangle with three colored bounce paths -->
-      <svg viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
-        <!-- Triangle fill -->
-        <polygon points="85,12 160,145 10,145"
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" rx="16" fill="#eaf4ea"/>
+        <!-- Triangle -->
+        <polygon points="100,18 178,162 22,162"
           fill="#d4ecd4" stroke="#2d6a2d" stroke-width="2.5"/>
-        <!-- Wall labels -->
-        <text x="85" y="158" text-anchor="middle" font-size="9" fill="#2d6a2d" font-weight="bold" opacity=".6">AB</text>
-        <text x="28"  y="90"  text-anchor="middle" font-size="9" fill="#2d6a2d" font-weight="bold" opacity=".6">CA</text>
-        <text x="142" y="90"  text-anchor="middle" font-size="9" fill="#2d6a2d" font-weight="bold" opacity=".6">BC</text>
-        <!-- Path 1 (red): T→AB→X -->
-        <line x1="100" y1="112" x2="72"  y2="145" stroke="#e63946" stroke-width="2" opacity=".85"/>
-        <line x1="72"  y1="145" x2="65"  y2="72"  stroke="#e63946" stroke-width="2" opacity=".85"/>
-        <circle cx="72" cy="145" r="3.5" fill="#e63946"/>
-        <!-- Path 2 (teal): T→BC→X -->
-        <line x1="100" y1="112" x2="138" y2="102" stroke="#2a9d8f" stroke-width="2" opacity=".85"/>
-        <line x1="138" y1="102" x2="65"  y2="72"  stroke="#2a9d8f" stroke-width="2" opacity=".85"/>
-        <circle cx="138" cy="102" r="3.5" fill="#2a9d8f"/>
-        <!-- Path 3 (orange): T→CA→X -->
-        <line x1="100" y1="112" x2="38"  y2="108" stroke="#f4a261" stroke-width="2" opacity=".85"/>
-        <line x1="38"  y1="108" x2="65"  y2="72"  stroke="#f4a261" stroke-width="2" opacity=".85"/>
-        <circle cx="38" cy="108" r="3.5" fill="#f4a261"/>
+        <!-- Path 1 red -->
+        <line x1="118" y1="124" x2="85"  y2="162" stroke="#e63946" stroke-width="2.2"/>
+        <line x1="85"  y1="162" x2="76"  y2="82"  stroke="#e63946" stroke-width="2.2"/>
+        <circle cx="85" cy="162" r="4" fill="#e63946"/>
+        <!-- Path 2 teal -->
+        <line x1="118" y1="124" x2="160" y2="116" stroke="#2a9d8f" stroke-width="2.2"/>
+        <line x1="160" y1="116" x2="76"  y2="82"  stroke="#2a9d8f" stroke-width="2.2"/>
+        <circle cx="160" cy="116" r="4" fill="#2a9d8f"/>
+        <!-- Path 3 orange -->
+        <line x1="118" y1="124" x2="46"  y2="122" stroke="#f4a261" stroke-width="2.2"/>
+        <line x1="46"  y1="122" x2="76"  y2="82"  stroke="#f4a261" stroke-width="2.2"/>
+        <circle cx="46" cy="122" r="4" fill="#f4a261"/>
         <!-- Target X -->
-        <line x1="58" y1="65" x2="72" y2="79" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/>
-        <line x1="72" y1="65" x2="58" y2="79" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round"/>
-        <!-- Tee T -->
-        <circle cx="100" cy="112" r="8" fill="#2d6a2d" stroke="#fff" stroke-width="1.5"/>
-        <text x="100" y="113" text-anchor="middle" dominant-baseline="middle"
-          font-size="8" fill="white" font-weight="bold">T</text>
+        <line x1="68" y1="74" x2="84" y2="90" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+        <line x1="84" y1="74" x2="68" y2="90" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+        <!-- Tee -->
+        <circle cx="118" cy="124" r="10" fill="#2d6a2d" stroke="#fff" stroke-width="2"/>
+        <text x="118" y="125" text-anchor="middle" dominant-baseline="middle"
+          font-size="9" fill="white" font-weight="bold" font-family="sans-serif">T</text>
         <!-- Vertex labels -->
-        <text x="85"  y="8"   text-anchor="middle" font-size="10" font-weight="bold" fill="#1a2e1a">C</text>
-        <text x="4"   y="150" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a2e1a">A</text>
-        <text x="166" y="150" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a2e1a">B</text>
+        <text x="100" y="13"  text-anchor="middle" font-size="11" font-weight="bold" fill="#1a2e1a" font-family="Georgia,serif">C</text>
+        <text x="15"  y="168" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a2e1a" font-family="Georgia,serif">A</text>
+        <text x="185" y="168" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a2e1a" font-family="Georgia,serif">B</text>
       </svg>
     </div>
-
     <div class="desc">
-      <h2>MIRA Golf &mdash; Equilateral Triangle Explorer</h2>
-      <p class="tagline">
-        Drag a tee and target anywhere inside an equilateral triangle. Find every
-        hole-in-one billiard path for 0&ndash;4 bounces, isolate individual paths, and
-        reveal the geometric unfolding behind each one.
-      </p>
+      <h2>MIRA Golf &mdash; Equilateral Triangle</h2>
       <p class="body-text">
-        Using the reflection principle, the applet finds all valid paths by
-        &ldquo;unfolding&rdquo; the target: reflect it across each candidate wall, then draw
-        a straight line back to the tee. The bounce point appears where that line crosses
-        the wall. For multi-bounce paths, the target is reflected through a sequence of
-        walls in reverse order. Toggle <em>Show unfolding</em> to watch the reflected
-        triangles and straight lines appear &mdash; one reflected copy per bounce,
-        extending outward from the original table.
+        Drag a tee and target inside an equilateral triangle. A slider reveals all
+        hole-in-one billiard paths for 0&ndash;4 bounces; click any path to isolate it.
+        Toggle <em>Show unfolding</em> to see the reflected triangle copies extend
+        outward &mdash; one per bounce &mdash; and watch the zig-zag path become a
+        straight line.
       </p>
-      <p class="mirzakhani-note">
-        <strong>Mirzakhani connection.</strong> The equilateral triangle is a
-        <em>rational polygon</em> (all angles are rational multiples of &pi;), which means
-        repeatedly unfolding it produces a finite flat surface &mdash; in fact, a torus.
-        Billiard paths in the triangle correspond to geodesics on that torus. Mirzakhani&rsquo;s
-        early work studied the <em>counting problem</em>: how many closed billiard
-        trajectories of length &le;&nbsp;L exist, and how does that number grow with L?
-        Her answer &mdash; that the count grows like L&sup2; with an explicit constant tied
-        to the geometry of the surface &mdash; was a landmark result. The unfolding
-        visualization in this applet is the same technique at the heart of that theory.
+      <p class="mirzakhani">
+        <strong>Mirzakhani connection.</strong> The equilateral triangle is a rational
+        polygon, so unfolding it produces a flat torus. Billiard paths become geodesics
+        on that surface. Mirzakhani proved that the number of closed trajectories of
+        length &le;&nbsp;L grows like L&sup2; &mdash; a landmark counting theorem whose
+        proof depends on exactly the unfolding technique this sketch makes visible.
       </p>
-      <div class="tag-row">
-        <span class="tag">Reflection</span>
-        <span class="tag">Unfolding</span>
-        <span class="tag">Flat surfaces</span>
-        <span class="tag">Rational polygons</span>
-        <span class="tag">Mirzakhani</span>
-      </div>
-      <a class="launch-btn" href="mira-golf.html">Open sketch &rarr;</a>
+      <a class="launch" href="mira-golf.html">Open sketch →</a>
     </div>
-
   </div>
 
-  <!-- ── Row 2: Grid Billiards ───────────────────────────────── -->
+  <!-- ── Grid Billiards ── -->
   <div class="sketch-row">
-
     <div class="thumb">
-      <!-- Thumbnail: 6×4 grid with a ball path -->
-      <svg viewBox="0 0 170 170" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" rx="16" fill="#f0ede6"/>
         <defs>
-          <clipPath id="grid-clip">
-            <rect x="14" y="24" width="142" height="122"/>
+          <clipPath id="gc">
+            <rect x="18" y="28" width="164" height="144"/>
           </clipPath>
         </defs>
         <!-- Grid lines -->
-        <g stroke="#b8cce0" stroke-width=".7">
-          <line x1="14"  y1="24"  x2="14"  y2="146"/>
-          <line x1="37"  y1="24"  x2="37"  y2="146"/>
-          <line x1="60"  y1="24"  x2="60"  y2="146"/>
-          <line x1="83"  y1="24"  x2="83"  y2="146"/>
-          <line x1="106" y1="24"  x2="106" y2="146"/>
-          <line x1="129" y1="24"  x2="129" y2="146"/>
-          <line x1="156" y1="24"  x2="156" y2="146"/>
-          <line x1="14"  y1="24"  x2="156" y2="24"/>
-          <line x1="14"  y1="54"  x2="156" y2="54"/>
-          <line x1="14"  y1="85"  x2="156" y2="85"/>
-          <line x1="14"  y1="115" x2="156" y2="115"/>
-          <line x1="14"  y1="146" x2="156" y2="146"/>
+        <g stroke="#c8d8e8" stroke-width=".8">
+          <line x1="18"  y1="28"  x2="18"  y2="172"/>
+          <line x1="45"  y1="28"  x2="45"  y2="172"/>
+          <line x1="73"  y1="28"  x2="73"  y2="172"/>
+          <line x1="100" y1="28"  x2="100" y2="172"/>
+          <line x1="127" y1="28"  x2="127" y2="172"/>
+          <line x1="155" y1="28"  x2="155" y2="172"/>
+          <line x1="182" y1="28"  x2="182" y2="172"/>
+          <line x1="18"  y1="28"  x2="182" y2="28"/>
+          <line x1="18"  y1="64"  x2="182" y2="64"/>
+          <line x1="18"  y1="100" x2="182" y2="100"/>
+          <line x1="18"  y1="136" x2="182" y2="136"/>
+          <line x1="18"  y1="172" x2="182" y2="172"/>
         </g>
         <!-- Border -->
-        <rect x="14" y="24" width="142" height="122"
-          fill="none" stroke="#1e3560" stroke-width="2.5"/>
-        <!-- Ball path (rise=3, run=2, W=6, H=4) clipped to table -->
-        <g clip-path="url(#grid-clip)" stroke="#b83200" stroke-width="2" fill="none" opacity=".88">
-          <polyline points="14,146 60,85 106,24 156,85 106,146 60,85 14,24"/>
+        <rect x="18" y="28" width="164" height="144"
+          fill="none" stroke="#2c4a7c" stroke-width="2.5"/>
+        <!-- Ball path clipped -->
+        <g clip-path="url(#gc)">
+          <polyline points="18,172 73,100 128,28 182,100 128,172 73,100 18,28"
+            fill="none" stroke="#b83200" stroke-width="2.2" opacity=".9"/>
         </g>
         <!-- Bounce dots -->
-        <circle cx="60"  cy="85"  r="3.5" fill="#b83200" opacity=".8"/>
-        <circle cx="106" cy="24"  r="3.5" fill="#b83200" opacity=".8"/>
-        <circle cx="156" cy="85"  r="3.5" fill="#b83200" opacity=".8"/>
-        <circle cx="106" cy="146" r="3.5" fill="#b83200" opacity=".8"/>
-        <!-- Corner pockets -->
-        <circle cx="14"  cy="24"  r="5" fill="#e8e0d0" stroke="#666" stroke-width="1.2"/>
-        <circle cx="156" cy="24"  r="5" fill="#e8e0d0" stroke="#666" stroke-width="1.2"/>
-        <circle cx="14"  cy="146" r="5" fill="#e8e0d0" stroke="#666" stroke-width="1.2"/>
-        <circle cx="156" cy="146" r="5" fill="#38a169"/>
-        <!-- "IN" at pocket -->
-        <text x="156" y="147" text-anchor="middle" dominant-baseline="middle"
-          font-size="5.5" font-weight="bold" fill="#fff">IN</text>
+        <circle cx="73"  cy="100" r="4" fill="#b83200" opacity=".85"/>
+        <circle cx="128" cy="28"  r="4" fill="#b83200" opacity=".85"/>
+        <circle cx="182" cy="100" r="4" fill="#b83200" opacity=".85"/>
+        <circle cx="128" cy="172" r="4" fill="#b83200" opacity=".85"/>
+        <!-- Pockets -->
+        <circle cx="18"  cy="28"  r="6" fill="#e8e0d0" stroke="#999" stroke-width="1.2"/>
+        <circle cx="182" cy="28"  r="6" fill="#e8e0d0" stroke="#999" stroke-width="1.2"/>
+        <circle cx="18"  cy="172" r="6" fill="#e8e0d0" stroke="#999" stroke-width="1.2"/>
+        <circle cx="182" cy="172" r="6" fill="#38a169"/>
+        <text x="182" y="173" text-anchor="middle" dominant-baseline="middle"
+          font-size="6" font-weight="bold" fill="#fff" font-family="sans-serif">IN</text>
         <!-- Ball at start -->
-        <circle cx="14" cy="146" r="7" fill="#cc2222" stroke="#fff" stroke-width="1.5"/>
-        <!-- Dimension labels -->
-        <text x="85"  y="162" text-anchor="middle" font-size="9" fill="#888" font-family="monospace">W = 6</text>
-        <text x="5"   y="85"  text-anchor="middle" font-size="9" fill="#888" font-family="monospace"
-          transform="rotate(-90,5,85)">H = 4</text>
+        <circle cx="18" cy="172" r="9" fill="#cc2222" stroke="#fff" stroke-width="2"/>
       </svg>
     </div>
-
     <div class="desc">
       <h2>Grid Billiards Explorer</h2>
-      <p class="tagline">
-        Launch a ball from a corner of an m&nbsp;&times;&nbsp;n rectangular table and watch it
-        bounce until it reaches a pocket &mdash; or keeps going. Set the rise and run
-        of the launch angle to control the slope.
-      </p>
       <p class="body-text">
-        The ball travels at a fixed slope (rise/run) and reflects off walls with equal
-        angles of incidence and reflection. The table dimensions and the slope together
-        determine everything: which pocket the ball reaches, how many bounces it takes,
-        and whether it ever pockets at all. Key patterns emerge quickly &mdash; the role
-        of GCD(m,&nbsp;n), parity of the dimensions, and what happens at a 45&deg; angle.
-        The animated path builds bounce-by-bounce; the slope landmark shows the first
-        lattice point on the trajectory.
+        Launch a ball from a corner of an m&nbsp;&times;&nbsp;n table at a chosen slope
+        (rise/run) and watch it bounce, animated step by step. The table dimensions and
+        slope together determine which pocket the ball reaches &mdash; or whether it
+        ever pockets at all. GCD, parity, and angle all play a role.
       </p>
-      <p class="mirzakhani-note">
-        <strong>Mirzakhani connection.</strong> The rectangle is the simplest case of the
-        unfolding story. Tiling the plane with reflected copies of the rectangle turns
-        the bouncing ball into a straight line in the plane &mdash; a <em>geodesic on a flat
-        torus</em>. Mirzakhani&rsquo;s work on flat surfaces generalizes this idea to every
-        rational polygon: each produces a <em>translation surface</em>, and straight-line
-        flows on those surfaces have the same equidistribution and counting properties she
-        proved. The rectangle case makes the core idea tangible: GCD(m,&nbsp;n)&nbsp;=&nbsp;1
-        forces the geodesic to be dense, while larger GCD values produce periodic orbits.
+      <p class="mirzakhani">
+        <strong>Mirzakhani connection.</strong> Tiling the plane with reflected copies
+        of the rectangle turns the bouncing path into a straight line &mdash; a geodesic
+        on a flat torus. This is the simplest instance of the unfolding principle
+        Mirzakhani generalized to every rational polygon. When GCD(m,&nbsp;n)&nbsp;=&nbsp;1,
+        the geodesic is dense; otherwise it is periodic. Both behaviors appear in her
+        broader theory of translation surfaces.
       </p>
-      <div class="tag-row">
-        <span class="tag">GCD</span>
-        <span class="tag">Parity</span>
-        <span class="tag">Flat torus</span>
-        <span class="tag">Geodesics</span>
-        <span class="tag">Translation surfaces</span>
-      </div>
-      <a class="launch-btn" href="grid-billiards.html">Open sketch &rarr;</a>
+      <a class="launch" href="grid-billiards.html">Open sketch →</a>
     </div>
-
   </div>
 
-</div><!-- end .sketch-list -->
+</div>
 
-<!-- ══════════════════════════════════════════════════════════════ FOOTER -->
 <footer>
-  <a href="https://github.com/OhioMathTeacher/billiards-explorer" target="_blank">
-    github.com/OhioMathTeacher/billiards-explorer
-  </a>
-  &nbsp;&middot;&nbsp; Miami University &middot; TCE 265
-  &nbsp;&middot;&nbsp; More sketches coming soon
+  <a href="https://github.com/OhioMathTeacher/billiards-explorer" target="_blank">github.com/OhioMathTeacher/billiards-explorer</a>
+  &nbsp;&middot;&nbsp; Miami University · TCE 265 &nbsp;&middot;&nbsp; More sketches coming soon
 </footer>
 
 </body>
