@@ -113,6 +113,18 @@
 
     .launch:hover { opacity: .55; }
 
+    .coming-soon {
+      display: inline-block;
+      margin-top: 4px;
+      font-size: .9em;
+      font-weight: 500;
+      color: #aeaeb2;
+      letter-spacing: .2px;
+    }
+
+    /* Dimmed thumbnail for placeholder rows */
+    .thumb.placeholder svg { opacity: .45; }
+
     /* ── Footer ── */
     footer {
       margin-top: 72px;
@@ -266,6 +278,119 @@
         broader theory of translation surfaces.
       </p>
       <a class="launch" href="grid-billiards.html">Open sketch →</a>
+    </div>
+  </div>
+
+
+  <!-- ── General Triangle ── -->
+  <div class="sketch-row">
+    <div class="thumb placeholder">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" rx="16" fill="#eaf4ea"/>
+        <!-- Scalene triangle -->
+        <polygon points="48,168 172,155 88,22"
+          fill="#d4ecd4" stroke="#2d6a2d" stroke-width="2.5"/>
+        <!-- Draggable vertex hint circles -->
+        <circle cx="48"  cy="168" r="6" fill="#2d4a2d"/>
+        <circle cx="172" cy="155" r="6" fill="#2d4a2d"/>
+        <circle cx="88"  cy="22"  r="6" fill="#2d4a2d"/>
+        <!-- Vertex labels -->
+        <text x="36"  y="170" font-size="11" font-weight="bold" fill="#1a2e1a" font-family="Georgia,serif">A</text>
+        <text x="178" y="157" font-size="11" font-weight="bold" fill="#1a2e1a" font-family="Georgia,serif">B</text>
+        <text x="84"  y="16"  font-size="11" font-weight="bold" fill="#1a2e1a" font-family="Georgia,serif">C</text>
+        <!-- One bounce path (purple) -->
+        <line x1="120" y1="118" x2="148" y2="155" stroke="#8338ec" stroke-width="2.2"/>
+        <line x1="148" y1="155" x2="74"  y2="76"  stroke="#8338ec" stroke-width="2.2"/>
+        <circle cx="148" cy="155" r="4" fill="#8338ec"/>
+        <!-- Two-bounce path (blue) -->
+        <line x1="120" y1="118" x2="70"  y2="96"  stroke="#457b9d" stroke-width="2.2"/>
+        <line x1="70"  y1="96"  x2="116" y2="155" stroke="#457b9d" stroke-width="2.2"/>
+        <line x1="116" y1="155" x2="74"  y2="76"  stroke="#457b9d" stroke-width="2.2"/>
+        <circle cx="70"  cy="96"  r="4" fill="#457b9d"/>
+        <circle cx="116" cy="155" r="4" fill="#457b9d"/>
+        <!-- Target X -->
+        <line x1="66" y1="68" x2="82" y2="84" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+        <line x1="82" y1="68" x2="66" y2="84" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+        <!-- Tee -->
+        <circle cx="120" cy="118" r="10" fill="#2d6a2d" stroke="#fff" stroke-width="2"/>
+        <text x="120" y="119" text-anchor="middle" dominant-baseline="middle"
+          font-size="9" fill="white" font-weight="bold" font-family="sans-serif">T</text>
+      </svg>
+    </div>
+    <div class="desc">
+      <h2>MIRA Golf &mdash; Any Triangle</h2>
+      <p class="body-text">
+        Drag the three vertices to reshape the triangle freely. Explore how
+        billiard paths change as a triangle moves from equilateral to isosceles
+        to scalene to right-angled &mdash; and discover which shapes allow more
+        or fewer valid paths for a given bounce count.
+      </p>
+      <p class="mirzakhani">
+        <strong>Mirzakhani connection.</strong> When a triangle's angles are
+        irrational multiples of &pi;, unfolding no longer closes up into a finite
+        surface &mdash; the orbit can be dense, and counting periodic trajectories
+        becomes radically harder. For acute triangles, Fagnano's problem asks for
+        the shortest closed billiard path: the answer is the orthic triangle,
+        inscribed with vertices at the feet of the altitudes.
+      </p>
+      <span class="coming-soon">Coming soon</span>
+    </div>
+  </div>
+
+  <!-- ── General Quadrilateral ── -->
+  <div class="sketch-row">
+    <div class="thumb placeholder">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+        <rect width="200" height="200" rx="16" fill="#e8f0f8"/>
+        <!-- Convex quadrilateral -->
+        <polygon points="32,148 90,170 170,140 155,38"
+          fill="#cce0f4" stroke="#2c4a7c" stroke-width="2.5"/>
+        <!-- Vertices -->
+        <circle cx="32"  cy="148" r="6" fill="#2c4a7c"/>
+        <circle cx="90"  cy="170" r="6" fill="#2c4a7c"/>
+        <circle cx="170" cy="140" r="6" fill="#2c4a7c"/>
+        <circle cx="155" cy="38"  r="6" fill="#2c4a7c"/>
+        <!-- Vertex labels -->
+        <text x="20"  y="150" font-size="11" font-weight="bold" fill="#1a2232" font-family="Georgia,serif">A</text>
+        <text x="88"  y="184" font-size="11" font-weight="bold" fill="#1a2232" font-family="Georgia,serif">B</text>
+        <text x="176" y="142" font-size="11" font-weight="bold" fill="#1a2232" font-family="Georgia,serif">C</text>
+        <text x="156" cy="32" x="151" y="32"  font-size="11" font-weight="bold" fill="#1a2232" font-family="Georgia,serif">D</text>
+        <!-- One-bounce path (red) -->
+        <line x1="90" y1="110" x2="130" y2="140" stroke="#e63946" stroke-width="2.2"/>
+        <line x1="130" y1="140" x2="68" y2="72"  stroke="#e63946" stroke-width="2.2"/>
+        <circle cx="130" cy="140" r="4" fill="#e63946"/>
+        <!-- Two-bounce path (teal) -->
+        <line x1="90" y1="110" x2="54"  y2="106" stroke="#2a9d8f" stroke-width="2.2"/>
+        <line x1="54" y1="106" x2="148" y2="90"  stroke="#2a9d8f" stroke-width="2.2"/>
+        <line x1="148" y1="90" x2="68"  y2="72"  stroke="#2a9d8f" stroke-width="2.2"/>
+        <circle cx="54"  cy="106" r="4" fill="#2a9d8f"/>
+        <circle cx="148" cy="90"  r="4" fill="#2a9d8f"/>
+        <!-- Target X -->
+        <line x1="60" y1="64" x2="76" y2="80" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+        <line x1="76" y1="64" x2="60" y2="80" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/>
+        <!-- Tee -->
+        <circle cx="90" cy="110" r="10" fill="#2c4a7c" stroke="#fff" stroke-width="2"/>
+        <text x="90" y="111" text-anchor="middle" dominant-baseline="middle"
+          font-size="9" fill="white" font-weight="bold" font-family="sans-serif">T</text>
+      </svg>
+    </div>
+    <div class="desc">
+      <h2>Billiards in a Quadrilateral</h2>
+      <p class="body-text">
+        Drag four vertices to form any convex quadrilateral &mdash; a square,
+        rectangle, rhombus, trapezoid, or irregular shape. Find billiard paths
+        of 0&ndash;4 bounces and compare how the path structure changes as the
+        shape deforms. The rectangle is a special case where explicit formulas exist.
+      </p>
+      <p class="mirzakhani">
+        <strong>Mirzakhani connection.</strong> A quadrilateral with angles that
+        are rational multiples of &pi; unfolds into a compact translation surface
+        of higher genus. Mirzakhani's work on the SL(2,&thinsp;&Reals;) action on
+        moduli spaces of such surfaces explains how the set of all possible
+        trajectories is organized &mdash; a profound generalization of what this
+        sketch makes visible for a single shape.
+      </p>
+      <span class="coming-soon">Coming soon</span>
     </div>
   </div>
 
