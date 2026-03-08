@@ -275,6 +275,33 @@
     .control-row.compact label { width: 28px; font-size: 0.8em; }
     .control-row.compact { margin-bottom: 6px; }
 
+    .aim-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 7px;
+    }
+
+    .sliders-col { flex: 1; min-width: 0; }
+
+    .shoot-square {
+      width: 58px;
+      min-height: 58px;
+      flex-shrink: 0;
+      background: #2c4a7c;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.88em;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1.25;
+      transition: background 0.15s;
+    }
+    .shoot-square:hover { background: #1e3560; }
+    .shoot-square.stop  { background: #b03030; }
+    .shoot-square.stop:hover { background: #8c2020; }
+
 
     /* Portrait phones: stack vertically */
     @media (max-width: 600px) and (orientation: portrait) {
@@ -291,7 +318,7 @@
       .panel { padding: 10px 12px; }
       .control-row label { font-size: 0.92em; width: 70px; }
       input[type=range] { height: 26px; }
-      .shoot-btn { padding: 13px; font-size: 1.05em; }
+      .shoot-square { width: 52px; min-height: 52px; font-size: 0.82em; }
       .speed-btn { padding: 7px; font-size: 0.82em; }
       .stat .num { font-size: 1.5em; }
       .sidebar { min-width: 200px; }
@@ -310,27 +337,33 @@
   <div class="sidebar">
 
     <div class="panel">
-      <div class="control-row">
-        <label>Rise</label>
-        <input type="range" id="rise" min="1" max="8" value="1" step="1">
-        <span class="val" id="rise-val">1</span>
+      <!-- Rise + Run sliders left, square Shoot button right -->
+      <div class="aim-row">
+        <div class="sliders-col">
+          <div class="control-row">
+            <label>Rise</label>
+            <input type="range" id="rise" min="1" max="5" value="1" step="1">
+            <span class="val" id="rise-val">1</span>
+          </div>
+          <div class="control-row">
+            <label>Run</label>
+            <input type="range" id="run" min="1" max="5" value="1" step="1">
+            <span class="val" id="run-val">1</span>
+          </div>
+        </div>
+        <button class="shoot-square" id="shoot-btn" onclick="shoot()">Shoot!</button>
       </div>
-      <div class="control-row">
-        <label>Run</label>
-        <input type="range" id="run" min="1" max="8" value="1" step="1">
-        <span class="val" id="run-val">1</span>
-      </div>
-      <div style="text-align:center; font-size:0.82em; color:#555; margin-bottom:7px; background:#f5f2ec; border-radius:5px; padding:4px 6px;">
+
+      <div style="text-align:center; font-size:0.82em; color:#555; margin-bottom:5px; background:#f5f2ec; border-radius:5px; padding:4px 6px;">
         slope = <strong id="slope-frac">1/1</strong> &nbsp;·&nbsp; angle ≈ <strong id="slope-angle">45°</strong>
       </div>
-      <button class="shoot-btn" id="shoot-btn" onclick="shoot()">Shoot!</button>
 
-      <!-- Inline results — visible immediately below Shoot -->
-      <div id="status" class="status-inline">—</div>
+      <!-- Results immediately below -->
       <div class="inline-stats">
         <span>Bounces: <strong id="bounce-count">—</strong></span>
         <span>Pocket: <strong id="pocket-reached">—</strong></span>
       </div>
+      <div id="status" class="status-inline">—</div>
 
       <div class="divider"></div>
 
